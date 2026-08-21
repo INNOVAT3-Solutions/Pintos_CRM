@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800;900&family=Barlow+Semi+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;padding:0;background:#F2F5F9;font-family:'Barlow',sans-serif;-webkit-font-smoothing:antialiased;}
+a{color:#2E9BD6;text-decoration:none;} a:hover{color:#F26F1F;}
+input,select{font-family:'Barlow',sans-serif;background:#fff;color:#14283C;color-scheme:light;}
+input:focus,select:focus{outline:2px solid #2E9BD6;outline-offset:-1px;}
+::-webkit-scrollbar{width:10px;height:10px;} ::-webkit-scrollbar-thumb{background:#2c4a68;border-radius:99px;} ::-webkit-scrollbar-track{background:transparent;}
+</style>
+</helmet>
+<div style="display:flex; height:100vh; overflow:hidden; background:#F2F5F9; color:#14283C;">
+
+  <div data-screen-label="Sidebar" style="width:216px; flex-shrink:0; background:#FFFFFF; border-right:1px solid #E3E9F1; display:flex; flex-direction:column; padding:18px 12px 14px;">
+    <div style="padding:2px 6px 14px; border-bottom:1px solid #EEF2F7; display:flex; justify-content:center;">
+      <img src="./logo.png" alt="Pinto's Pressure Washing" style="width:124px; object-fit:contain; display:block;">
+    </div>
+    <div style="flex:1; overflow-y:auto; padding-top:10px;">
+      <sc-for list="{{ navGroups }}" as="grp" hint-placeholder-count="3">
+        <div style="margin-bottom:14px;">
+          <div style="font-size:10px; font-weight:800; letter-spacing:1.6px; color:#8AA0B8; padding:4px 10px 6px;">{{ grp.label }}</div>
+          <div style="display:flex; flex-direction:column; gap:2px;">
+            <sc-for list="{{ grp.items }}" as="it" hint-placeholder-count="3">
+              <div onClick="{{ it.go }}" style="padding:8px 10px; border-radius:8px; cursor:pointer; font-size:13.5px; font-weight:600; color:{{ it.color }}; background:{{ it.bg }}; border-left:3px solid {{ it.bar }}; display:flex; justify-content:space-between; align-items:center;" style-hover="background:#F2F5F9">
+                <span>{{ it.label }}</span>
+                <sc-if value="{{ it.badge }}" hint-placeholder-val="{{ false }}">
+                  <span style="background:#F26F1F; color:#fff; font-size:10.5px; font-weight:800; border-radius:99px; padding:1px 7px;">{{ it.badge }}</span>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+    <div style="border-top:1px solid #EEF2F7; padding:12px 6px 0; display:flex; align-items:center; gap:9px;">
+      <div style="width:32px; height:32px; border-radius:99px; background:#F26F1F; color:#fff; font-weight:800; font-size:13px; display:flex; align-items:center; justify-content:center;">JP</div>
+      <div>
+        <div style="color:#14283C; font-size:12.5px; font-weight:700;">J. Pinto</div>
+        <div style="color:#7A8FA6; font-size:11px;">Owner</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="flex:1; overflow-y:auto; background:#F2F5F9;">
+
+    <sc-if value="{{ isDashboard }}" hint-placeholder-val="{{ true }}">
+      <div data-screen-label="Dashboard" style="min-height:100%; padding:26px 30px 40px;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:20px;">
+          <div>
+            <div style="color:#5A6E84; font-size:12.5px; font-weight:600;">{{ today }}</div>
+            <div style="color:#14283C; font-family:'Barlow Semi Condensed'; font-weight:800; font-size:26px; letter-spacing:0.2px;">Financial overview</div>
+          </div>
+          <div style="display:flex; gap:10px;">
+            <button onClick="{{ goEstimate }}" style="background:#F26F1F; color:#fff; border:none; border-radius:8px; font-weight:700; font-size:13.5px; padding:10px 16px; cursor:pointer; font-family:'Barlow';" style-hover="background:#FF8534">+ New estimate</button>
+            <button onClick="{{ goPipeline }}" style="background:#fff; color:#14283C; border:1px solid #C9D6E4; border-radius:8px; font-weight:700; font-size:13.5px; padding:10px 16px; cursor:pointer; font-family:'Barlow';" style-hover="background:#F5F8FB">View pipeline</button>
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:14px; margin-bottom:14px;">
+          <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="4">
+            <div style="background:#fff; border:1px solid #E3E9F1; border-radius:12px; padding:16px 18px;">
+              <div style="color:#7A8FA6; font-size:12px; font-weight:700; letter-spacing:0.6px;">{{ k.label }}</div>
+              <div style="color:{{ k.valColor }}; font-family:'Barlow Semi Condensed'; font-weight:800; font-size:28px; margin-top:6px;">{{ k.value }}</div>
+              <div style="font-size:12px; font-weight:700; margin-top:4px; color:{{ k.deltaColor }};">{{ k.delta }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1.1fr 1fr; gap:14px; margin-bottom:14px;">
+          <div style="background:#fff; border:1px solid #E3E9F1; border-radius:12px; padding:18px 20px;">
+            <div style="color:#14283C; font-weight:800; font-size:15px; margin-bottom:14px;">Expense breakdown — Aug</div>
+            <div style="display:flex; align-items:center; gap:18px;">
+              <div style="width:132px; height:132px; border-radius:50%; flex-shrink:0; background:conic-gradient(#2E6E9E 0% 55.4%, #F26F1F 55.4% 78.5%, #F9A03F 78.5% 85.5%, #6D4BA6 85.5% 90.4%, #5CB8E8 90.4% 94.7%, #3D5570 94.7% 100%); display:flex; align-items:center; justify-content:center;">
+                <div style="width:84px; height:84px; border-radius:50%; background:#fff; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                  <div style="color:#14283C; font-weight:800; font-size:17px; font-family:'Barlow Semi Condensed';">{{ expTotal }}</div>
+                  <div style="color:#7A8FA6; font-size:9.5px; font-weight:800; letter-spacing:0.8px;">TOTAL SPENT</div>
+                </div>
+              </div>
+              <div style="flex:1; display:flex; flex-direction:column; gap:6px;">
+                <sc-for list="{{ expLegend }}" as="e" hint-placeholder-count="6">
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <span style="width:9px; height:9px; border-radius:3px; background:{{ e.color }}; flex-shrink:0;"></span>
+                    <span style="color:#3D5570; font-size:12px; font-weight:600; flex:1;">{{ e.label }}</span>
+                    <span style="color:#14283C; font-size:12px; font-weight:800;">{{ e.amount }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+          <div style="background:#fff; border:1px solid #E3E9F1; border-radius:12px; padding:18px 20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+              <div style="color:#14283C; font-weight:800; font-size:15px;">Financial activity</div>
+              <span style="background:#F7FAFC; border:1px solid #E3E9F1; color:#7A8FA6; font-size:11px; font-weight:800; border-radius:99px; padding:4px 11px;">MONTHLY</span>
+            </div>
+            <div style="display:flex; gap:8px; margin-bottom:10px;">
+              <span style="background:#EAF4FB; color:#1B6FAE; font-size:11.5px; font-weight:800; border-radius:99px; padding:4px 11px;">Income {{ faIncome }}</span>
+              <span style="background:#FFF1E6; color:#B45B14; font-size:11.5px; font-weight:800; border-radius:99px; padding:4px 11px;">Expense {{ faExpense }}</span>
+            </div>
+            <div style="display:flex; align-items:baseline; gap:8px;">
+              <div style="color:#1F7A4D; font-family:'Barlow Semi Condensed'; font-weight:800; font-size:30px;">{{ faProfit }}</div>
+              <div style="color:#7A8FA6; font-size:12px; font-weight:700;">net profit · 54% margin</div>
+            </div>
+            <div style="display:flex; align-items:flex-end; gap:14px; height:92px; margin-top:12px;">
+              <sc-for list="{{ faMonths }}" as="m" hint-placeholder-count="4">
+                <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:5px;">
+                  <div style="display:flex; align-items:flex-end; gap:4px; width:100%; justify-content:center;">
+                    <div style="width:16px; border-radius:4px 4px 1px 1px; background:#2E9BD6; height:{{ m.inc }}px;"></div>
+                    <div style="width:16px; border-radius:4px 4px 1px 1px; background:#F26F1F; height:{{ m.exp }}px;"></div>
+                  </div>
+                  <div style="color:#7A8FA6; font-size:10.5px; font-weight:800;">{{ m.label }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="background:#fff; border:1px solid #E3E9F1; border-radius:12px; padding:18px 20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <div style="color:#14283C; font-weight:800; font-size:15px;">Q3 expenses</div>
+              <span style="background:#E7F6EE; color:#1F7A4D; font-size:10.5px; font-weight:800; border-radius:99px; padding:3px 9px;">ON TRACK</span>
+            </div>
+            <div style="display:flex; align-items:baseline; gap:6px;">
+              <span style="color:#14283C; font-weight:800; font-size:22px; font-family:'Barlow Semi Condensed';">$10,740</span>
+              <span style="color:#7A8FA6; font-weight:700; font-size:13px;">/ $18,000 budget</span>
+            </div>
+            <div style="height:10px; background:#E8EEF5; border-radius:99px; margin:10px 0 14px; overflow:hidden;">
+              <div style="height:10px; width:60%; border-radius:99px; background:linear-gradient(90deg, #2E9BD6, #F26F1F);"></div>
+            </div>
+            <sc-for list="{{ q3Months }}" as="q" hint-placeholder-count="3">
+              <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #EEF2F7;">
+                <div>
+                  <div style="color:#14283C; font-size:13px; font-weight:700;">{{ q.month }}</div>
+                  <div style="color:#8AA0B8; font-size:11px; font-weight:700;">{{ q.note }}</div>
+                </div>
+                <div style="color:{{ q.color }}; font-size:13px; font-weight:800;">{{ q.amount }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns:1.6fr 1fr; gap:14px;">
+          <div style="background:#fff; border:1px solid #E3E9F1; border-radius:12px; padding:18px 20px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+              <div style="color:#14283C; font-weight:800; font-size:15px;">Profit trend — last 8 weeks</div>
+              <div style="color:#7A8FA6; font-size:12px; font-weight:700;">avg <span style="color:#1F7A4D; font-weight:800;">$1,608/wk</span></div>
+            </div>
+            <svg width="100%" height="150" viewBox="0 0 560 150" preserveAspectRatio="none" style="display:block;">
+              <line x1="0" y1="140" x2="560" y2="140" stroke="#E3E9F1" stroke-width="1"></line>
+              <line x1="0" y1="80" x2="560" y2="80" stroke="#E3E9F1" stroke-width="1" stroke-dasharray="3 5"></line>
+              <line x1="0" y1="20" x2="560" y2="20" stroke="#E3E9F1" stroke-width="1" stroke-dasharray="3 5"></line>
+              <polyline points="10,115 87,85 164,130 241,52 318,100 395,23 472,67 549,43" fill="none" stroke="#F26F1F" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></polyline>
+              <circle cx="549" cy="43" r="5" fill="#F26F1F" stroke="#fff" stroke-width="2"></circle>
+            </svg>
+            <div style="display:flex; justify-content:space-between; padding:4px 4px 0;">
+              <sc-for list="{{ weekLabels }}" as="w" hint-placeholder-count="8">
+                <span style="color:#7A8FA6; font-size:10.5px; font-weight:800;">{{ w }}</span>
+              </sc-for>
+            </div>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:14px;">
+            <div style="background:linear-gradient(100deg, #F26F1F, #E85D0F); border-radius:12px; padding:16px 18px;">
+              <div style="color:#fff; font-weight:800; font-size:13.5px; letter-spacing:0.4px;">INSIGHT</div>
+              <div style="color:#FFEBDC; font-size:13px; font-weight:600; line-height:1.45; margin-top:4px;">Fuel spend is 22% over July — three Broward jobs drove it. A trip fee beyond 15 mi would have covered $96 of it.</div>
+            </div>
+            <div style="background:#fff; border:1px solid #E3E9F1; border-radius:12px; padding:16px 18px; flex:1;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <div style="color:#14283C; font-weight:800; font-size:15px;">Plan members</div>
+                <a onClick="{{ goCustomers }}" style="font-size:12px; font-weight:800; cursor:pointer;">All members →</a>
+              </div>
+              <sc-for list="{{ plans }}" as="p" hint-placeholder-count="3">
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #EEF2F7;">
+                  <div>
+                    <div style="color:#14283C; font-size:13px; font-weight:700;">{{ p.name }}</div>
+                    <div style="color:#8AA0B8; font-size:11.5px;">{{ p.detail }}</div>
+                  </div>
+                  <span style="background:{{ p.pillBg }}; color:{{ p.pillFg }}; font-size:11px; font-weight:800; border-radius:99px; padding:3px 9px;">{{ p.plan }}</span>
+                </div>
+              </sc-for>
+              <div style="display:flex; justify-content:space-between; padding-top:10px;">
+                <span style="color:#7A8FA6; font-size:12.5px; font-weight:700;">Recurring value</span>
+                <span style="color:#14283C; font-weight:800; font-size:14px;">{{ mrr }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isPipeline }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Pipeline" style="padding:24px 28px 40px;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:18px;">
+          <div>
+            <div style="font-size:23px; font-weight:800; letter-spacing:-0.2px;">Sales pipeline</div>
+            <div style="color:#5A6E84; font-size:13px; font-weight:600; margin-top:2px;">{{ pipeSummary }} · click → to advance a lead</div>
+          </div>
+          <button onClick="{{ goEstimate }}" style="background:#F26F1F; color:#fff; border:none; border-radius:8px; font-weight:700; font-size:13.5px; padding:10px 16px; cursor:pointer; font-family:'Barlow';" style-hover="background:#FF8534">+ New estimate</button>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(6, minmax(180px, 1fr)); gap:12px; align-items:start;">
+          <sc-for list="{{ columns }}" as="col" hint-placeholder-count="6">
+            <div style="background:#EAEFF5; border:1px solid #DFE7F0; border-radius:12px; padding:10px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; padding:2px 4px 10px;">
+                <span style="font-size:12px; font-weight:800; letter-spacing:0.6px; color:#3D5570;">{{ col.stage }}</span>
+                <span style="font-size:11.5px; font-weight:800; color:#7A8FA6;">{{ col.total }}</span>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:8px; min-height:60px;">
+                <sc-for list="{{ col.cards }}" as="card" hint-placeholder-count="1">
+                  <div style="background:#fff; border:1px solid #E0E8F1; border-left:3px solid {{ card.bar }}; border-radius:9px; padding:10px 11px; box-shadow:0 1px 2px rgba(16,42,67,0.05);">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:6px;">
+                      <div style="font-size:13px; font-weight:800; color:#14283C; line-height:1.25;">{{ card.name }}</div>
+                      <sc-if value="{{ card.canAdvance }}" hint-placeholder-val="{{ false }}">
+                        <button onClick="{{ card.advance }}" title="Advance stage" style="border:1px solid #C9D6E4; background:#fff; color:#1B6FAE; border-radius:6px; font-weight:800; cursor:pointer; font-size:12px; padding:1px 7px; flex-shrink:0;" style-hover="background:#EAF4FB">→</button>
+                      </sc-if>
+                    </div>
+                    <div style="font-size:11.5px; color:#5A6E84; font-weight:600; margin-top:3px; line-height:1.3;">{{ card.detail }}</div>
+                    <div style="display:flex; justify-content:space-between; margin-top:8px;">
+                      <span style="font-size:11px; color:#8AA0B8; font-weight:700;">{{ card.age }}</span>
+                      <span style="font-size:12px; font-weight:800; color:#14283C;">{{ card.value }}</span>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isCustomers }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Customers" style="padding:24px 28px 40px;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:14px;">
+          <div>
+            <div style="font-size:23px; font-weight:800; letter-spacing:-0.2px;">Customers</div>
+            <div style="color:#5A6E84; font-size:13px; font-weight:600; margin-top:2px;">{{ custCount }} accounts · click a row to open the profile</div>
+          </div>
+          <button style="background:#fff; color:#14283C; border:1px solid #C9D6E4; border-radius:8px; font-weight:700; font-size:13.5px; padding:10px 16px; cursor:pointer; font-family:'Barlow';" style-hover="background:#F5F8FB">+ Add customer</button>
+        </div>
+        <div style="background:#0F2740; border:1px solid #1F3B59; border-radius:12px; padding:14px 18px; display:flex; align-items:center; gap:26px; margin-bottom:14px;">
+          <div>
+            <div style="color:#8FA9C2; font-size:10.5px; font-weight:800; letter-spacing:1px;">ACTIVE PLAN MEMBERS</div>
+            <div style="color:#fff; font-weight:800; font-size:20px; font-family:'Barlow Semi Condensed';">{{ memberCount }}</div>
+          </div>
+          <div>
+            <div style="color:#8FA9C2; font-size:10.5px; font-weight:800; letter-spacing:1px;">MONTHLY MEMBERS</div>
+            <div style="color:#F9A03F; font-weight:800; font-size:20px; font-family:'Barlow Semi Condensed';">{{ monthlyCount }}</div>
+          </div>
+          <div>
+            <div style="color:#8FA9C2; font-size:10.5px; font-weight:800; letter-spacing:1px;">RECURRING VALUE</div>
+            <div style="color:#5FCE8F; font-weight:800; font-size:20px; font-family:'Barlow Semi Condensed';">{{ mrr }}</div>
+          </div>
+          <div style="flex:1; text-align:right; color:#5E7FA0; font-size:12px; font-weight:600;">Next plan visit: Aug 29 — Sunrise Storage Co.</div>
+        </div>
+        <div style="display:flex; gap:8px; margin-bottom:12px;">
+          <sc-for list="{{ custFilters }}" as="f" hint-placeholder-count="4">
+            <button onClick="{{ f.pick }}" style="background:{{ f.bg }}; color:{{ f.fg }}; border:1px solid {{ f.border }}; border-radius:99px; font-weight:800; font-size:12px; padding:6px 14px; cursor:pointer; font-family:'Barlow';">{{ f.label }}</button>
+          </sc-for>
+        </div>
+        <div style="background:#fff; border:1px solid #E3E9F1; border-radius:12px; overflow:hidden;">
+          <div style="display:grid; grid-template-columns:2fr 1fr 1fr 1.2fr 0.8fr 40px; gap:10px; padding:11px 18px; background:#F7FAFC; border-bottom:1px solid #E3E9F1; font-size:11px; font-weight:800; letter-spacing:0.8px; color:#7A8FA6;">
+            <div>CUSTOMER</div><div>TYPE</div><div>PLAN</div><div>LAST JOB</div><div>LIFETIME</div><div></div>
+          </div>
+          <sc-for list="{{ customers }}" as="c" hint-placeholder-count="6">
+            <div onClick="{{ c.open }}" style="display:grid; grid-template-columns:2fr 1fr 1fr 1.2fr 0.8fr 40px; gap:10px; padding:13px 18px; border-bottom:1px solid #EEF2F7; align-items:center; cursor:pointer;" style-hover="background:#F5F9FD">
+              <div>
+                <div style="font-size:14px; font-weight:800; color:#14283C;">{{ c.name }}</div>
+                <div style="font-size:12px; color:#7A8FA6; font-weight:600;">{{ c.address }}</div>
+              </div>
+              <div><span style="background:{{ c.typeBg }}; color:{{ c.typeFg }}; font-size:11px; font-weight:800; border-radius:99px; padding:3px 9px;">{{ c.type }}</span></div>
+              <div style="font-size:12.5px; font-weight:700; color:{{ c.planColor }};">{{ c.plan }}</div>
+              <div style="font-size:12.5px; color:#5A6E84; font-weight:600;">{{ c.lastJob }}</div>
+              <div style="font-size:13.5px; font-weight:800; color:#14283C;">{{ c.ltv }}</div>
+              <div style="color:#B7C6D6; font-weight:800;">›</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isCustomerProfile }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Customer profile" style="padding:24px 28px 40px;">
+        <a onClick="{{ goCustomers }}" style="font-size:12.5px; font-weight:800; cursor:pointer;">← Customers</a>
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin:10px 0 18px;">
+          <div>
+            <div style="font-size:24px; font-weight:800; letter-spacing:-0.2px;">{{ cp.name }}</div>
+            <div style="color:#5A6E84; font-size:13px; font-weight:600; margin-top:3px;">{{ cp.address }} · {{ cp.phone }} · {{ cp.email }}</div>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button onClick="{{ goEstimate }}" style="background:#F26F1F; color:#fff; border:none; border-radius:8px; font-weight:700; font-size:13px; padding:9px 14px; cursor:pointer; font-family:'Barlow';" style-hover="background:#FF8534">New estimate</button>
+            <button style="background:#fff; color:#14283C; border:1px solid #C9D6E4; border-radius:8px; font-weight:700; font-size:13px; padding:9px 14px; cursor:pointer; font-family:'Barlow';">Log contact</button>
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; margin-bottom:16px;">
+          <sc-for list="{{ cp.stats }}" as="s" hint-placeholder-count="4">
+            <div style="background:#fff; border:1px solid #E3E9F1; border-radius:12px; padding:14px 16px;">
+              <div style="font-size:11px; font-weight:800; letter-spacing:0.8px; color:#7A8FA6;">{{ s.label }}</div>
+              <div style="font-size:20px; font-weight:800; color:#14283C; margin-top:4px;">{{ s.value }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="display:grid; grid-template-columns:1.5fr 1fr; gap:14px;">
+          <div style="background:#fff; border:1px solid #E3E9F1; border-radius:12px; padding:16px 18px;">
+            <div style="font-weight:800; font-size:15px; margin-bottom:8px;">Job history</div>
+            <sc-for list="{{ cp.jobs }}" as="j" hint-placeholder-count="2">
+              <div onClick="{{ j.open }}" style="display:grid; grid-template-columns:70px 1fr auto auto; gap:12px; padding:11px 0; border-bottom:1px solid #EEF2F7; align-items:center; cursor:pointer;" style-hover="background:#F5F9FD">
+                <span style="font-size:12px; font-weight:800; color:#1B6FAE;">{{ j.id }}</span>
+                <div>
+                  <div style="font-size:13.5px; font-weight:700; color:#14283C;">{{ j.services }}</div>
+                  <div style="font-size:11.5px; color:#7A8FA6; font-weight:600;">{{ j.date }}</div>
+                </div>
+                <span style="background:{{ j.pillBg }}; color:{{ j.pillFg }}; font-size:11px; font-weight:800; border-radius:99px; padding:3px 9px;">{{ j.status }}</span>
+                <span style="font-size:13.5px; font-weight:800;">{{ j.revenue }}</span>
+              </div>
+            </sc-for>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:14px;">
+            <div style="background:#fff; border:1px solid #E3E9F1; border-radius:12px; padding:16px 18px;">
+              <div style="font-weight:800; font-size:15px; margin-bottom:8px;">Communication log</div>
+              <sc-for list="{{ cp.comms }}" as="m" hint-placeholder-count="3">
+                <div style="padding:8px 0; border-bottom:1px solid #EEF2F7;">
+                  <div style="display:flex; justify-content:space-between;">
+                    <span style="font-size:11.5px; font-weight:800; color:{{ m.kindColor }};">{{ m.kind }}</span>
+                    <span style="font-size:11px; color:#8AA0B8; font-weight:700;">{{ m.when }}</span>
+                  </div>
+                  <div style="font-size:12.5px; color:#3D5570; font-weight:600; margin-top:2px; line-height:1.35;">{{ m.text }}</div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="background:#fff; border:1px solid #E3E9F1; border-radius:12px; padding:16px 18px;">
+              <div style="font-weight:800; font-size:15px; margin-bottom:6px;">Notes</div>
+              <div style="font-size:12.5px; color:#3D5570; font-weight:600; line-height:1.5;">{{ cp.notes }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isEstimate }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Estimate builder" style="padding:24px 28px 40px;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:16px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <div style="font-size:23px; font-weight:800; letter-spacing:-0.2px;">Estimate #1024</div>
+            <span style="background:#EAF4FB; color:#1B6FAE; font-size:11.5px; font-weight:800; border-radius:99px; padding:4px 11px;">DRAFT</span>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button style="background:#fff; color:#14283C; border:1px solid #C9D6E4; border-radius:8px; font-weight:700; font-size:13.5px; padding:10px 16px; cursor:pointer; font-family:'Barlow';" style-hover="background:#F5F8FB">Save as draft</button>
+            <button onClick="{{ sendEstimate }}" style="background:{{ sendBg }}; color:#fff; border:none; border-radius:8px; font-weight:700; font-size:13.5px; padding:10px 16px; cursor:pointer; font-family:'Barlow';">{{ sendLabel }}</button>
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.05fr); gap:16px; align-items:start;">
+          <div style="display:flex; flex-direction:column; gap:14px;">
+            <div style="background:#fff; border:1px solid #E3E9F1; border-radius:12px; padding:16px 18px;">
+              <div style="display:grid; grid-template-columns:1.3fr 1fr 0.8fr; gap:12px; margin-bottom:12px;">
+                <div>
+                  <div style="font-size:11px; font-weight:800; letter-spacing:0.6px; color:#7A8FA6; margin-bottom:4px;">CUSTOMER</div>
+                  <select value="{{ estCustomer }}" onChange="{{ onEstCustomer }}" style="width:100%; padding:8px 10px; border:1px solid #C9D6E4; border-radius:8px; font-size:13px; font-weight:700; box-sizing:border-box;">
+                    <option value="James Whitfield">James Whitfield</option>
+                    <option value="Maria Delgado">Maria Delgado</option>
+                    <option value="Elena Ruiz">Elena Ruiz</option>
+                    <option value="Weston Bay HOA">Weston Bay HOA</option>
+                    <option value="Harbor Point Plaza">Harbor Point Plaza</option>
+                    <option value="Sunrise Storage Co.">Sunrise Storage Co.</option>
+                  </select>
+                </div>
+                <div>
+                  <div style="font-size:11px; font-weight:800; letter-spacing:0.6px; color:#7A8FA6; margin-bottom:4px;">PROPERTY ADDRESS</div>
+                  <div style="font-size:12.5px; font-weight:700; color:#14283C; padding-top:8px;">{{ estAddress }}</div>
+                </div>
+                <div>
+                  <div style="font-size:11px; font-weight:800; letter-spacing:0.6px; color:#7A8FA6; margin-bottom:4px;">DATE · VALID FOR</div>
+                  <div style="font-size:12.5px; font-weight:700; color:#14283C; padding-top:8px;">Aug 20, 2026 · 30 days</div>
+                </div>
+              </div>
+              <div style="display:grid; grid-template-columns:repeat(5, 1fr); gap:10px;">
+                <sc-for list="{{ propFields }}" as="f" hint-placeholder-count="5">
+                  <div>
+                    <div style="font-size:10.5px; font-weight:800; letter-spacing:0.5px; color:#7A8FA6; margin-bottom:4px;">{{ f.label }}</div>
+                    <input type="number" value="{{ f.value }}" onChange="{{ f.onChange }}" style="width:100%; padding:8px 10px; border:1px solid #C9D6E4; border-radius:8px; font-size:13.5px; font-weight:700; box-sizing:border-box;">
+                  </div>
+                </sc-for>
+              </div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+                <div style="font-size:11.5px; color:#8AA0B8; font-weight:600;">Square footage re-prices matching lines live.</div>
+                <a onClick="{{ goMeasure }}" style="font-size:12px; font-weight:800; cursor:pointer;">Measure from map →</a>
+              </div>
+            </div>
+            <div style="background:#fff; border:1px solid #E3E9F1; border-radius:12px; padding:16px 18px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <div style="font-size:11.5px; font-weight:800; letter-spacing:1px; color:#3D5570;">SELECTED SERVICES</div>
+                <select value="" onChange="{{ onAddService }}" style="padding:7px 10px; border:1px solid #C9D6E4; border-radius:8px; font-size:12.5px; font-weight:700; color:#1B6FAE;">
+                  <option value="">+ Add service…</option>
+                  <option value="hw">Full Exterior House Wash</option>
+                  <option value="dw">Driveway Cleaning</option>
+                  <option value="rf">Roof Wash</option>
+                  <option value="wc">Window Cleaning</option>
+                  <option value="pd">Pool Deck / Patio Cleaning</option>
+                  <option value="wk">Walkway Cleaning</option>
+                  <option value="gc">Gutter Clean-Out</option>
+                  <option value="gw1">Gutter Whitening (1-story)</option>
+                  <option value="gw2">Gutter Whitening (2-story)</option>
+                  <option value="ps">Paver Sealing</option>
+                  <option value="pe">Pool Enclosure Cleaning</option>
+                  <option value="wd">Wood Deck Cleaning</option>
+                  <option value="rr">Rust Removal</option>
+                  <option value="os">Oil Stain Removal</option>
+                </select>
+              </div>
+              <sc-for list="{{ lines }}" as="ln" hint-placeholder-count="3">
+                <div style="display:grid; grid-template-columns:14px 1.8fr 110px 90px 30px; gap:10px; padding:11px 0; border-bottom:1px solid #EEF2F7; align-items:center;">
+                  <span style="color:#C4D2E0; font-weight:800; letter-spacing:1px; font-size:11px;">⠿</span>
+                  <div>
+                    <div style="font-size:13.5px; font-weight:800; color:#14283C;">{{ ln.name }}</div>
+                    <div style="font-size:11.5px; color:#8AA0B8; font-weight:700;">{{ ln.rateLabel }}</div>
+                  </div>
+                  <input type="number" value="{{ ln.qty }}" onChange="{{ ln.onQty }}" style="padding:7px 9px; border:1px solid #C9D6E4; border-radius:7px; font-size:13px; font-weight:700; width:100%; box-sizing:border-box;">
+                  <div style="text-align:right; font-size:13.5px; font-weight:800;">{{ ln.total }}</div>
+                  <button onClick="{{ ln.remove }}" style="border:none; background:none; color:#B7C6D6; font-weight:800; cursor:pointer; font-size:15px;" style-hover="color:#D64545">✕</button>
+                </div>
+              </sc-for>
+            </div>
+            <div style="background:#fff; border:1px solid #E3E9F1; border-radius:12px; padding:16px 18px;">
+              <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
+                <div style="font-size:11.5px; font-weight:800; letter-spacing:1px; color:#3D5570;">ADD-ONS</div>
+                <span style="background:#FFF1E6; color:#B45B14; font-size:10px; font-weight:800; letter-spacing:0.8px; border-radius:5px; padding:2px 7px;">AUTO-PRICED UPSELLS</span>
+              </div>
+              <sc-for list="{{ addons }}" as="a" hint-placeholder-count="5">
+                <div onClick="{{ a.toggle }}" style="display:grid; grid-template-columns:22px 1.8fr 110px 90px; gap:10px; padding:10px 0; border-bottom:1px solid #EEF2F7; align-items:center; cursor:pointer;" style-hover="background:#FFFBF7">
+                  <div style="width:17px; height:17px; border-radius:5px; border:2px solid {{ a.boxBorder }}; background:{{ a.boxBg }}; display:flex; align-items:center; justify-content:center; color:#fff; font-size:11px; font-weight:900;">{{ a.check }}</div>
+                  <div>
+                    <div style="font-size:13.5px; font-weight:700; color:#14283C;">{{ a.name }}</div>
+                    <div style="font-size:11.5px; color:#8AA0B8; font-weight:700;">{{ a.reason }}</div>
+                  </div>
+                  <div style="font-size:12px; color:#7A8FA6; font-weight:700;">{{ a.qtyLabel }}</div>
+                  <div style="text-align:right; font-size:13.5px; font-weight:800; color:#F26F1F;">{{ a.price }}</div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="background:#fff; border:1px solid #E3E9F1; border-radius:12px; padding:16px 18px;">
+              <div style="font-size:11.5px; font-weight:800; letter-spacing:1px; color:#3D5570; margin-bottom:10px;">PLAN & DISCOUNT</div>
+              <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin-bottom:12px;">
+                <sc-for list="{{ planOpts }}" as="p" hint-placeholder-count="3">
+                  <div onClick="{{ p.pick }}" style="border:2px solid {{ p.border }}; background:{{ p.bg }}; border-radius:9px; padding:9px 11px; cursor:pointer;">
+                    <div style="font-size:12.5px; font-weight:800; color:#14283C;">{{ p.label }}</div>
+                    <div style="font-size:11px; color:#5A6E84; font-weight:700; margin-top:2px;">{{ p.sub }}</div>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="display:flex; align-items:center; gap:10px;">
+                <span style="font-size:12px; font-weight:800; color:#7A8FA6;">DISCOUNT</span>
+                <input type="number" value="{{ discPct }}" onChange="{{ onDiscPct }}" style="width:80px; padding:7px 9px; border:1px solid #C9D6E4; border-radius:7px; font-size:13px; font-weight:800; box-sizing:border-box;">
+                <span style="font-size:13px; font-weight:800; color:#7A8FA6;">%</span>
+                <span style="font-size:11.5px; color:#8AA0B8; font-weight:600;">auto-set by plan · edit to override</span>
+                <span style="margin-left:auto; font-size:13.5px; font-weight:800; color:#1F7A4D;">−{{ discAmt }}</span>
+              </div>
+            </div>
+            <div style="background:#0F2740; border:1px solid #1F3B59; border-radius:12px; padding:16px 20px;">
+              <div style="color:#8FA9C2; font-size:11px; font-weight:800; letter-spacing:1px; margin-bottom:8px;">ESTIMATE SUMMARY</div>
+              <div style="display:flex; justify-content:space-between; padding:5px 0;"><span style="color:#CDDDEE; font-size:13px; font-weight:600;">Subtotal</span><span style="color:#fff; font-weight:800; font-size:13px;">{{ sumSubtotal }}</span></div>
+              <div style="display:flex; justify-content:space-between; padding:5px 0;"><span style="color:#CDDDEE; font-size:13px; font-weight:600;">Add-ons</span><span style="color:#fff; font-weight:800; font-size:13px;">{{ sumAddons }}</span></div>
+              <div style="display:flex; justify-content:space-between; padding:5px 0;"><span style="color:#5FCE8F; font-size:13px; font-weight:700;">Discount ({{ discPct }}%)</span><span style="color:#5FCE8F; font-weight:800; font-size:13px;">−{{ discAmt }}</span></div>
+              <div style="display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid #2A4A6C;"><span style="color:#CDDDEE; font-size:13px; font-weight:600;">Tax</span><span style="color:#fff; font-weight:800; font-size:13px;">$0.00</span></div>
+              <div style="display:flex; justify-content:space-between; align-items:baseline; padding-top:10px;">
+                <span style="color:#fff; font-size:14px; font-weight:800;">{{ totalLabel }}</span>
+                <span style="color:#F9A03F; font-size:27px; font-weight:800; font-family:'Barlow Semi Condensed';">{{ estTotal }}</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; padding-top:6px;">
+                <span style="color:#8FA9C2; font-size:12px; font-weight:700;">Deposit required $0.00</span>
+                <span style="color:#8FA9C2; font-size:12px; font-weight:700;">Balance due {{ estTotal }}</span>
+              </div>
+              <sc-if value="{{ belowMin }}" hint-placeholder-val="{{ false }}">
+                <div style="background:#3A2430; border:1px solid #6B3A47; color:#F0A9B8; font-size:11.5px; font-weight:700; border-radius:8px; padding:8px 10px; margin-top:10px;">Below the {{ minPrice }} job minimum set in Settings.</div>
+              </sc-if>
+            </div>
+          </div>
+          <div style="position:sticky; top:16px; max-height:calc(100vh - 56px); overflow-y:auto; border-radius:14px; box-shadow:0 8px 30px rgba(10,27,46,0.14);">
+            <div style="background:#fff; border-radius:14px; overflow:hidden;">
+              <div style="background:#EAF0F6; padding:9px 16px; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:11px; font-weight:800; letter-spacing:1px; color:#5A6E84;">LIVE PREVIEW — CUSTOMER SEES THIS</span>
+                <span style="font-size:11px; font-weight:800; color:#1F7A4D;">Updates as you build</span>
+              </div>
+              <div style="background:linear-gradient(115deg, #1B6FAE 0%, #2E9BD6 60%, #5CB8E8 100%); padding:20px 24px; display:flex; justify-content:space-between; align-items:center;">
+                <div style="display:flex; align-items:center; gap:12px;">
+                  <img src="./logo.png" alt="Pinto's" style="width:52px; height:52px; border-radius:10px; object-fit:cover;">
+                  <div>
+                    <div style="font-family:'Barlow Semi Condensed'; font-weight:800; font-size:18px; color:#fff;">PINTO'S PRESSURE WASHING</div>
+                    <div style="font-size:10.5px; color:#9FC3E0; font-weight:800; letter-spacing:1.6px;">PROTECT. ENHANCE. PRESERVE.</div>
+                  </div>
+                </div>
+                <div style="text-align:right;">
+                  <div style="font-size:10.5px; color:#9FC3E0; font-weight:800; letter-spacing:1px;">ESTIMATE</div>
+                  <div style="font-size:16px; color:#fff; font-weight:800;">#1024</div>
+                </div>
+              </div>
+              <div style="padding:20px 24px;">
+                <div style="display:flex; justify-content:space-between; border-bottom:1px solid #E3E9F1; padding-bottom:12px; margin-bottom:12px;">
+                  <div>
+                    <div style="font-size:11px; color:#7A8FA6; font-weight:800; letter-spacing:0.6px;">PREPARED FOR</div>
+                    <div style="font-size:16px; font-weight:800; color:#14283C;">{{ estCustomer }}</div>
+                    <div style="font-size:12px; color:#5A6E84; font-weight:600;">{{ estAddress }}</div>
+                  </div>
+                  <div style="text-align:right;">
+                    <div style="font-size:12px; color:#5A6E84; font-weight:700;">Date: Aug 20, 2026</div>
+                    <div style="font-size:12px; color:#5A6E84; font-weight:700;">Valid for: 30 days</div>
+                  </div>
+                </div>
+                <div style="font-size:11px; font-weight:800; letter-spacing:1px; color:#3D5570; border-bottom:2px solid #14283C; padding-bottom:5px; margin-bottom:4px;">REQUESTED SERVICES</div>
+                <sc-for list="{{ pvLines }}" as="s" hint-placeholder-count="3">
+                  <div style="display:grid; grid-template-columns:1.6fr 1fr auto; gap:8px; padding:7px 0; border-bottom:1px solid #EEF2F7;">
+                    <span style="font-size:12.5px; font-weight:700; color:#14283C;">{{ s.name }}</span>
+                    <span style="font-size:12px; color:#7A8FA6; font-weight:700;">{{ s.qtyLabel }}</span>
+                    <span style="font-size:12.5px; font-weight:800; color:#14283C;">{{ s.total }}</span>
+                  </div>
+                </sc-for>
+                <div style="font-size:11px; font-weight:800; letter-spacing:1px; color:#3D5570; border-bottom:2px solid #F26F1F; padding-bottom:5px; margin:18px 0 10px;">PACKAGE UPGRADES</div>
+                <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px;">
+                  <sc-for list="{{ packages }}" as="pk" hint-placeholder-count="3">
+                    <div style="border:2px solid {{ pk.border }}; border-radius:11px; padding:12px 11px; position:relative; background:{{ pk.bg }};">
+                      <sc-if value="{{ pk.popular }}" hint-placeholder-val="{{ false }}">
+                        <div style="position:absolute; top:-9px; left:50%; transform:translateX(-50%); background:#F26F1F; color:#fff; font-size:9px; font-weight:800; letter-spacing:1px; border-radius:99px; padding:2px 9px; white-space:nowrap;">MOST POPULAR</div>
+                      </sc-if>
+                      <div style="font-size:12px; font-weight:800; letter-spacing:1px; color:{{ pk.tierColor }}; text-align:center;">{{ pk.tier }}</div>
+                      <div style="font-size:9.5px; font-weight:800; letter-spacing:0.8px; color:#8AA0B8; text-align:center; margin-bottom:8px;">{{ pk.sub }}</div>
+                      <div style="display:flex; flex-direction:column; gap:4px; min-height:96px;">
+                        <sc-for list="{{ pk.items }}" as="i" hint-placeholder-count="4">
+                          <div style="font-size:10.5px; color:#3D5570; font-weight:600; display:flex; gap:5px;"><span style="color:#2E9E6B; font-weight:800;">✓</span><span>{{ i }}</span></div>
+                        </sc-for>
+                      </div>
+                      <div style="text-align:center; margin-top:8px;">
+                        <div style="font-size:18px; font-weight:800; color:#14283C; font-family:'Barlow Semi Condensed';">{{ pk.price }}</div>
+                        <div style="font-size:10px; color:#1F7A4D; font-weight:800;">Save {{ pk.save }}</div>
+                      </div>
+                      <button onClick="{{ pk.upgrade }}" style="width:100%; margin-top:8px; background:{{ pk.btnBg }}; color:{{ pk.btnFg }}; border:1px solid {{ pk.btnBorder }}; border-radius:7px; font-weight:800; font-size:11px; padding:7px 0; cursor:pointer; font-family:'Barlow';">{{ pk.btnLabel }}</button>
+                    </div>
+                  </sc-for>
+                </div>
+                <div style="font-size:11px; font-weight:800; letter-spacing:1px; color:#3D5570; border-bottom:2px solid #14283C; padding-bottom:5px; margin:18px 0 4px;">OPTIONAL ADD-ONS</div>
+                <sc-for list="{{ pvAddons }}" as="a" hint-placeholder-count="5">
+                  <div onClick="{{ a.toggle }}" style="display:grid; grid-template-columns:20px 1.6fr auto; gap:8px; padding:6px 0; border-bottom:1px solid #EEF2F7; align-items:center; cursor:pointer;">
+                    <div style="width:14px; height:14px; border-radius:4px; border:2px solid {{ a.boxBorder }}; background:{{ a.boxBg }}; display:flex; align-items:center; justify-content:center; color:#fff; font-size:9px; font-weight:900;">{{ a.check }}</div>
+                    <span style="font-size:12px; font-weight:700; color:#14283C;">{{ a.name }} <span style="color:#8AA0B8; font-weight:600;">({{ a.qtyLabel }})</span></span>
+                    <span style="font-size:12.5px; font-weight:800; color:#14283C;">{{ a.price }}</span>
+                  </div>
+                </sc-for>
+                <div style="background:#F7FAFC; border:1px solid #E3E9F1; border-radius:10px; padding:12px 16px; margin-top:14px;">
+                  <div style="display:flex; justify-content:space-between; padding:3px 0;"><span style="font-size:12px; color:#5A6E84; font-weight:700;">Subtotal</span><span style="font-size:12px; font-weight:800;">{{ sumWithAddons }}</span></div>
+                  <div style="display:flex; justify-content:space-between; padding:3px 0;"><span style="font-size:12px; color:#1F7A4D; font-weight:700;">Discount ({{ discPct }}%)</span><span style="font-size:12px; font-weight:800; color:#1F7A4D;">−{{ discAmt }}</span></div>
+                  <div style="display:flex; justify-content:space-between; padding:6px 0 0; border-top:1px solid #E3E9F1; margin-top:4px; align-items:baseline;">
+                    <span style="font-size:13px; font-weight:800;">TOTAL</span>
+                    <span style="font-size:21px; font-weight:800; color:#1B6FAE; font-family:'Barlow Semi Condensed';">{{ estTotal }}</span>
+                  </div>
+                </div>
+                <button style="width:100%; margin-top:14px; background:#0A1B2E; color:#fff; border:none; border-radius:9px; font-weight:800; font-size:13.5px; padding:12px 0; cursor:pointer; font-family:'Barlow';" style-hover="background:#143355">Accept Estimate & Schedule →</button>
+                <div style="text-align:center; font-size:10.5px; color:#8AA0B8; font-weight:600; margin-top:8px;">By accepting, you agree to our <a style="cursor:pointer;">Terms & Conditions</a></div>
+              </div>
+              <div style="background:#0A1B2E; padding:12px 24px; display:flex; justify-content:space-between; align-items:center;">
+                <span style="color:#9FC3E0; font-size:11px; font-weight:700;">Licensed & Insured · Residential & Commercial</span>
+                <span style="color:#9FC3E0; font-size:11px; font-weight:700;">(786) 555-0132 · pintospressurewashing.com</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isJobs }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Jobs" style="padding:24px 28px 40px;">
+        <div style="margin-bottom:18px;">
+          <div style="font-size:23px; font-weight:800; letter-spacing:-0.2px;">Jobs</div>
+          <div style="color:#5A6E84; font-size:13px; font-weight:600; margin-top:2px;">Every job is its own profile — docs, agreements, photos, and profit live on the record.</div>
+        </div>
+        <div style="background:#fff; border:1px solid #E3E9F1; border-radius:12px; overflow-x:auto;">
+          <div style="min-width:860px; display:grid; grid-template-columns:70px 1.6fr 1.6fr 90px 100px 90px 90px 40px; gap:10px; padding:11px 18px; background:#F7FAFC; border-bottom:1px solid #E3E9F1; font-size:11px; font-weight:800; letter-spacing:0.8px; color:#7A8FA6;">
+            <div>JOB</div><div>CUSTOMER</div><div>SERVICES</div><div>DATE</div><div>STATUS</div><div style="text-align:right;">REVENUE</div><div style="text-align:right;">PROFIT</div><div></div>
+          </div>
+          <sc-for list="{{ jobs }}" as="j" hint-placeholder-count="5">
+            <div onClick="{{ j.open }}" style="min-width:860px; display:grid; grid-template-columns:70px 1.6fr 1.6fr 90px 100px 90px 90px 40px; gap:10px; padding:13px 18px; border-bottom:1px solid #EEF2F7; align-items:center; cursor:pointer;" style-hover="background:#F5F9FD">
+              <span style="font-size:12.5px; font-weight:800; color:#1B6FAE;">{{ j.id }}</span>
+              <span style="font-size:13.5px; font-weight:800; color:#14283C;">{{ j.customer }}</span>
+              <span style="font-size:12.5px; color:#5A6E84; font-weight:600;">{{ j.services }}</span>
+              <span style="font-size:12.5px; color:#5A6E84; font-weight:700;">{{ j.date }}</span>
+              <span><span style="background:{{ j.pillBg }}; color:{{ j.pillFg }}; font-size:11px; font-weight:800; border-radius:99px; padding:3px 9px;">{{ j.status }}</span></span>
+              <span style="text-align:right; font-size:13.5px; font-weight:800;">{{ j.revenue }}</span>
+              <span style="text-align:right; font-size:13.5px; font-weight:800; color:#1F7A4D;">{{ j.profit }}</span>
+              <span style="color:#B7C6D6; font-weight:800;">›</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isJobProfile }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Job profile" style="padding:24px 28px 40px;">
+        <a onClick="{{ goJobs }}" style="font-size:12.5px; font-weight:800; cursor:pointer;">← Jobs</a>
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin:10px 0 18px;">
+          <div>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <div style="font-size:24px; font-weight:800; letter-spacing:-0.2px;">{{ jp.id }} — {{ jp.customer }}</div>
+              <span style="background:{{ jp.pillBg }}; color:{{ jp.pillFg }}; font-size:11.5px; font-weight:800; border-radius:99px; padding:4px 11px;">{{ jp.status }}</span>
+            </div>
+            <div style="color:#5A6E84; font-size:13px; font-weight:600; margin-top:3px;">{{ jp.services }} · {{ jp.date }} · Crew: {{ jp.crew }}</div>
+          </div>
+          <button style="background:#fff; color:#14283C; border:1px solid #C9D6E4; border-radius:8px; font-weight:700; font-size:13px; padding:9px 14px; cursor:pointer; font-family:'Barlow';">+ Log expense</button>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; margin-bottom:16px;">
+          <sc-for list="{{ jp.fin }}" as="f" hint-placeholder-count="4">
+            <div style="background:#fff; border:1px solid #E3E9F1; border-top:3px solid {{ f.bar }}; border-radius:12px; padding:14px 16px;">
+              <div style="font-size:11px; font-weight:800; letter-spacing:0.8px; color:#7A8FA6;">{{ f.label }}</div>
+              <div style="font-size:22px; font-weight:800; color:{{ f.color }}; margin-top:4px; font-family:'Barlow Semi Condensed';">{{ f.value }}</div>
+              <div style="font-size:11.5px; color:#8AA0B8; font-weight:700;">{{ f.sub }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="display:grid; grid-template-columns:1.5fr 1fr; gap:14px;">
+          <div style="display:flex; flex-direction:column; gap:14px;">
+            <div style="background:#fff; border:1px solid #E3E9F1; border-radius:12px; padding:16px 18px;">
+              <div style="font-weight:800; font-size:15px; margin-bottom:8px;">Documents & agreements</div>
+              <sc-for list="{{ jp.docs }}" as="d" hint-placeholder-count="4">
+                <div style="display:grid; grid-template-columns:1fr auto auto; gap:12px; padding:10px 0; border-bottom:1px solid #EEF2F7; align-items:center;">
+                  <div>
+                    <div style="font-size:13.5px; font-weight:700; color:#14283C;">{{ d.name }}</div>
+                    <div style="font-size:11.5px; color:#7A8FA6; font-weight:600;">{{ d.meta }}</div>
+                  </div>
+                  <span style="background:{{ d.pillBg }}; color:{{ d.pillFg }}; font-size:11px; font-weight:800; border-radius:99px; padding:3px 9px;">{{ d.status }}</span>
+                  <a style="font-size:12px; font-weight:800; cursor:pointer;">View</a>
+                </div>
+              </sc-for>
+              <div style="background:#F2F7FB; border:1px solid #DCE7F1; border-radius:9px; padding:10px 13px; margin-top:12px; font-size:12px; color:#3D5570; font-weight:600; line-height:1.45;">Record of agreement: customer viewed Estimate v2 on Aug 6, accepted the Gold package, and signed from IP 73.124.9.18. The signed PDF above is exactly what they saw.</div>
+            </div>
+            <div style="background:#fff; border:1px solid #E3E9F1; border-radius:12px; padding:16px 18px;">
+              <div style="font-weight:800; font-size:15px; margin-bottom:8px;">Materials used</div>
+              <sc-for list="{{ jp.materials }}" as="m" hint-placeholder-count="3">
+                <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #EEF2F7;">
+                  <span style="font-size:13px; color:#3D5570; font-weight:600;">{{ m.name }}</span>
+                  <span style="font-size:13px; font-weight:800; color:#14283C;">{{ m.cost }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:14px;">
+            <div style="background:#fff; border:1px solid #E3E9F1; border-radius:12px; padding:16px 18px;">
+              <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                <div style="font-weight:800; font-size:15px;">Photos</div>
+                <span style="font-size:11.5px; font-weight:800; color:#7A8FA6;">BEFORE / AFTER</span>
+              </div>
+              <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px;">
+                <sc-for list="{{ jp.photos }}" as="ph" hint-placeholder-count="6">
+                  <div style="aspect-ratio:1; background:#E8EEF5; border:1px dashed #C4D2E0; border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:10.5px; font-weight:800; color:#8AA0B8; letter-spacing:0.5px;">{{ ph }}</div>
+                </sc-for>
+              </div>
+            </div>
+            <div style="background:#fff; border:1px solid #E3E9F1; border-radius:12px; padding:16px 18px;">
+              <div style="font-weight:800; font-size:15px; margin-bottom:8px;">Timeline</div>
+              <sc-for list="{{ jp.timeline }}" as="t" hint-placeholder-count="4">
+                <div style="display:flex; gap:10px; padding:7px 0;">
+                  <div style="width:8px; height:8px; border-radius:99px; background:{{ t.dot }}; margin-top:5px; flex-shrink:0;"></div>
+                  <div>
+                    <div style="font-size:12.5px; color:#3D5570; font-weight:700;">{{ t.text }}</div>
+                    <div style="font-size:11px; color:#8AA0B8; font-weight:700;">{{ t.when }}</div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isCalendar }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Calendar" style="padding:24px 28px 40px;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:16px;">
+          <div>
+            <div style="font-size:23px; font-weight:800; letter-spacing:-0.2px;">August 2026</div>
+            <div style="color:#5A6E84; font-size:13px; font-weight:600; margin-top:2px;">Click a day for details · filter by service provider</div>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <sc-for list="{{ provChips }}" as="p" hint-placeholder-count="4">
+              <button onClick="{{ p.pick }}" style="display:flex; align-items:center; gap:7px; background:{{ p.bg }}; color:{{ p.fg }}; border:1px solid {{ p.border }}; border-radius:99px; font-weight:800; font-size:12px; padding:6px 13px; cursor:pointer; font-family:'Barlow';">
+                <span style="width:8px; height:8px; border-radius:99px; background:{{ p.dot }};"></span>{{ p.label }}
+              </button>
+            </sc-for>
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 300px; gap:14px; align-items:start;">
+          <div style="background:#fff; border:1px solid #E3E9F1; border-radius:12px; overflow:hidden;">
+            <div style="display:grid; grid-template-columns:repeat(7, 1fr); background:#F7FAFC; border-bottom:1px solid #E3E9F1;">
+              <sc-for list="{{ dayNames }}" as="d" hint-placeholder-count="7">
+                <div style="padding:9px 0; text-align:center; font-size:11px; font-weight:800; letter-spacing:1px; color:#7A8FA6;">{{ d }}</div>
+              </sc-for>
+            </div>
+            <div style="display:grid; grid-template-columns:repeat(7, 1fr);">
+              <sc-for list="{{ calCells }}" as="c" hint-placeholder-count="42">
+                <div onClick="{{ c.pick }}" style="min-height:84px; border-bottom:1px solid #EEF2F7; border-right:1px solid #EEF2F7; padding:6px; background:{{ c.bg }}; cursor:pointer;" style-hover="background:#F5F9FD">
+                  <div style="font-size:11.5px; font-weight:800; color:{{ c.dayColor }};">{{ c.day }}</div>
+                  <div style="display:flex; flex-direction:column; gap:3px; margin-top:4px;">
+                    <sc-for list="{{ c.events }}" as="e" hint-placeholder-count="0">
+                      <div style="background:{{ e.bg }}; color:{{ e.fg }}; border-left:3px solid {{ e.fg }}; font-size:10.5px; font-weight:800; border-radius:4px; padding:2px 6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ e.label }}</div>
+                    </sc-for>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:14px;">
+            <div style="background:#fff; border:1px solid #E3E9F1; border-radius:12px; padding:16px 18px;">
+              <div style="font-weight:800; font-size:15px; margin-bottom:2px;">{{ dayTitle }}</div>
+              <div style="color:#7A8FA6; font-size:12px; font-weight:700; margin-bottom:10px;">{{ daySub }}</div>
+              <sc-for list="{{ dayEvents }}" as="e" hint-placeholder-count="1">
+                <div style="border:1px solid #E3E9F1; border-left:3px solid {{ e.color }}; border-radius:9px; padding:10px 12px; margin-bottom:8px;">
+                  <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-size:13px; font-weight:800; color:#14283C;">{{ e.customer }}</span>
+                    <span style="font-size:11px; font-weight:800; color:#7A8FA6;">{{ e.time }}</span>
+                  </div>
+                  <div style="font-size:11.5px; color:#5A6E84; font-weight:600; margin:2px 0 8px;">{{ e.detail }}</div>
+                  <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div style="display:flex; gap:4px;">
+                      <sc-for list="{{ e.crew }}" as="cr" hint-placeholder-count="2">
+                        <span style="background:{{ cr.bg }}; color:#fff; font-size:9.5px; font-weight:800; border-radius:99px; padding:3px 8px;">{{ cr.name }}</span>
+                      </sc-for>
+                    </div>
+                    <sc-if value="{{ e.hasJob }}" hint-placeholder-val="{{ false }}">
+                      <a onClick="{{ e.openJob }}" style="font-size:11.5px; font-weight:800; cursor:pointer;">Open job →</a>
+                    </sc-if>
+                  </div>
+                </div>
+              </sc-for>
+              <sc-if value="{{ dayEmpty }}" hint-placeholder-val="{{ false }}">
+                <div style="color:#8AA0B8; font-size:12.5px; font-weight:600; text-align:center; padding:14px 0;">Nothing scheduled. <a onClick="{{ goEstimate }}" style="cursor:pointer; font-weight:800;">Send an estimate →</a></div>
+              </sc-if>
+            </div>
+            <div style="background:#fff; border:1px solid #E3E9F1; border-radius:12px; padding:16px 18px;">
+              <div style="font-weight:800; font-size:15px; margin-bottom:10px;">This month by provider</div>
+              <sc-for list="{{ provSummary }}" as="p" hint-placeholder-count="3">
+                <div style="display:flex; align-items:flex-start; gap:10px; padding:8px 0; border-bottom:1px solid #EEF2F7;">
+                  <div style="width:28px; height:28px; border-radius:99px; background:{{ p.color }}; color:#fff; font-weight:800; font-size:11px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">{{ p.initials }}</div>
+                  <div style="flex:1;">
+                    <div style="display:flex; justify-content:space-between;">
+                      <span style="font-size:13px; font-weight:800; color:#14283C;">{{ p.name }}</span>
+                      <span style="font-size:11.5px; font-weight:800; color:#7A8FA6;">{{ p.count }} visits</span>
+                    </div>
+                    <div style="font-size:11.5px; color:#5A6E84; font-weight:700; margin-top:2px;">{{ p.days }}</div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isMeasure }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Roof measure" style="padding:24px 28px 40px;">
+        <div style="margin-bottom:16px;">
+          <div style="font-size:23px; font-weight:800; letter-spacing:-0.2px;">Property measure</div>
+          <div style="color:#5A6E84; font-size:13px; font-weight:600; margin-top:2px;">Find the property, outline the roof or surface, and send the square footage straight into an estimate.</div>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 300px; gap:14px; align-items:start;">
+          <div style="background:#fff; border:1px solid #E3E9F1; border-radius:12px; padding:16px 18px;">
+            <div style="display:flex; gap:8px; margin-bottom:12px;">
+              <input value="{{ measAddr }}" onChange="{{ onMeasAddr }}" placeholder="Property address — e.g. 7420 SW 62nd Ct, Pinecrest" style="flex:1; padding:9px 12px; border:1px solid #C9D6E4; border-radius:8px; font-size:13px; font-weight:600; box-sizing:border-box;">
+              <button onClick="{{ onLocate }}" style="background:#1B6FAE; color:#fff; border:none; border-radius:8px; font-weight:700; font-size:13px; padding:9px 16px; cursor:pointer; font-family:'Barlow';" style-hover="background:#2E9BD6">Locate parcel</button>
+            </div>
+            <div style="position:relative; height:440px; background:#D9E1E8; border-radius:10px; overflow:hidden;">
+              <div style="position:absolute; left:0; right:0; top:46%; height:30px; background:#B9C5D1;"></div>
+              <div style="position:absolute; top:0; bottom:0; left:28%; width:26px; background:#B9C5D1;"></div>
+              <div style="position:absolute; left:6%; top:8%; width:16%; height:26%; background:#C7D0DA; border-radius:4px;"></div>
+              <div style="position:absolute; left:38%; top:10%; width:22%; height:24%; background:#C7D0DA; border-radius:4px;"></div>
+              <div style="position:absolute; left:68%; top:6%; width:24%; height:28%; background:#C7D0DA; border-radius:4px;"></div>
+              <div style="position:absolute; left:8%; top:62%; width:14%; height:26%; background:#C7D0DA; border-radius:4px;"></div>
+              <div style="position:absolute; left:40%; top:60%; width:20%; height:30%; background:#CFD8E1; border:2px dashed {{ parcelStroke }}; border-radius:4px;"></div>
+              <div style="position:absolute; left:70%; top:64%; width:20%; height:24%; background:#C7D0DA; border-radius:4px;"></div>
+              {{ measureSvg }}
+              <div style="position:absolute; top:10px; left:10px; background:rgba(10,27,46,0.85); color:#CDDDEE; font-size:11px; font-weight:700; border-radius:7px; padding:5px 10px;">Satellite imagery placeholder — click corners to outline</div>
+              <sc-if value="{{ measFound }}" hint-placeholder-val="{{ false }}">
+                <div style="position:absolute; bottom:10px; left:10px; background:#F26F1F; color:#fff; font-size:11px; font-weight:800; border-radius:7px; padding:5px 10px;">Parcel located: {{ measAddrShown }}</div>
+              </sc-if>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px; margin-top:12px; flex-wrap:wrap;">
+              <button onClick="{{ onUndoPt }}" style="background:#fff; color:#14283C; border:1px solid #C9D6E4; border-radius:8px; font-weight:700; font-size:12.5px; padding:8px 13px; cursor:pointer; font-family:'Barlow';">Undo point</button>
+              <button onClick="{{ onClearPts }}" style="background:#fff; color:#14283C; border:1px solid #C9D6E4; border-radius:8px; font-weight:700; font-size:12.5px; padding:8px 13px; cursor:pointer; font-family:'Barlow';">Clear</button>
+              <button onClick="{{ onCloseShape }}" style="background:#14283C; color:#fff; border:none; border-radius:8px; font-weight:700; font-size:12.5px; padding:8px 13px; cursor:pointer; font-family:'Barlow';" style-hover="background:#1B6FAE">Close shape</button>
+              <span style="font-size:12px; color:#8AA0B8; font-weight:700;">{{ measPtsLabel }}</span>
+              <span style="margin-left:auto; font-size:11.5px; color:#8AA0B8; font-weight:600;">Scale: 1 px ≈ 0.55 ft</span>
+            </div>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:14px;">
+            <div style="background:#0F2740; border:1px solid #1F3B59; border-radius:12px; padding:18px 20px;">
+              <div style="color:#8FA9C2; font-size:11px; font-weight:800; letter-spacing:1px;">MEASURED AREA</div>
+              <div style="color:#F9A03F; font-weight:800; font-size:32px; font-family:'Barlow Semi Condensed'; margin:4px 0 2px;">{{ measArea }}</div>
+              <div style="color:#5E7FA0; font-size:12px; font-weight:700; margin-bottom:14px;">{{ measStatus }}</div>
+              <div style="color:#8FA9C2; font-size:11px; font-weight:800; letter-spacing:0.6px; margin-bottom:4px;">APPLY TO</div>
+              <select value="{{ measTarget }}" onChange="{{ onMeasTarget }}" style="width:100%; padding:8px 10px; border:1px solid #2A4A6C; border-radius:8px; font-size:13px; font-weight:700; box-sizing:border-box; margin-bottom:10px;">
+                <option value="roof">Roof sq ft</option>
+                <option value="house">House sq ft</option>
+                <option value="drive">Driveway sq ft</option>
+                <option value="patio">Patio sq ft</option>
+              </select>
+              <button onClick="{{ applyMeasure }}" style="width:100%; background:{{ applyBg }}; color:#fff; border:none; border-radius:8px; font-weight:800; font-size:13px; padding:10px 0; cursor:pointer; font-family:'Barlow';">Apply to estimate →</button>
+            </div>
+            <div style="background:#fff; border:1px solid #E3E9F1; border-radius:12px; padding:16px 18px;">
+              <div style="font-weight:800; font-size:15px; margin-bottom:8px;">Recent measurements</div>
+              <sc-for list="{{ recentMeas }}" as="r" hint-placeholder-count="2">
+                <div style="padding:8px 0; border-bottom:1px solid #EEF2F7;">
+                  <div style="display:flex; justify-content:space-between;">
+                    <span style="font-size:12.5px; font-weight:800; color:#14283C;">{{ r.addr }}</span>
+                    <span style="font-size:12.5px; font-weight:800; color:#F26F1F;">{{ r.area }}</span>
+                  </div>
+                  <div style="font-size:11px; color:#8AA0B8; font-weight:700;">{{ r.meta }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isFinancials }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Financials" style="padding:24px 28px 40px;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:18px;">
+          <div>
+            <div style="font-size:23px; font-weight:800; letter-spacing:-0.2px;">Financials — August 2026</div>
+            <div style="color:#5A6E84; font-size:13px; font-weight:600; margin-top:2px;">Month P&L, overhead, and profit by job</div>
+          </div>
+          <button style="background:#fff; color:#14283C; border:1px solid #C9D6E4; border-radius:8px; font-weight:700; font-size:13px; padding:9px 14px; cursor:pointer; font-family:'Barlow';">+ Log expense</button>
+        </div>
+        <div style="display:grid; grid-template-columns:340px 1fr; gap:14px; align-items:start;">
+          <div style="display:flex; flex-direction:column; gap:14px;">
+            <div style="background:#0F2740; border:1px solid #1F3B59; border-radius:12px; padding:18px 20px;">
+              <div style="color:#8FA9C2; font-size:11px; font-weight:800; letter-spacing:1px; margin-bottom:10px;">MONTH P&L</div>
+              <sc-for list="{{ pl }}" as="r" hint-placeholder-count="4">
+                <div style="display:flex; justify-content:space-between; padding:7px 0; border-bottom:1px solid #1B3550;">
+                  <span style="color:#CDDDEE; font-size:13px; font-weight:600;">{{ r.label }}</span>
+                  <span style="color:{{ r.color }}; font-size:13px; font-weight:800;">{{ r.value }}</span>
+                </div>
+              </sc-for>
+              <div style="display:flex; justify-content:space-between; align-items:baseline; padding-top:12px;">
+                <span style="color:#fff; font-weight:800; font-size:14px;">Net profit</span>
+                <div style="text-align:right;">
+                  <span style="color:#5FCE8F; font-size:24px; font-weight:800; font-family:'Barlow Semi Condensed';">$6,990</span>
+                  <div style="color:#8FA9C2; font-size:11.5px; font-weight:700;">54% margin</div>
+                </div>
+              </div>
+            </div>
+            <div style="background:#fff; border:1px solid #E3E9F1; border-radius:12px; padding:16px 18px;">
+              <div style="font-weight:800; font-size:15px; margin-bottom:8px;">Overhead this month</div>
+              <sc-for list="{{ overhead }}" as="e" hint-placeholder-count="5">
+                <div style="display:grid; grid-template-columns:1fr auto; gap:8px; padding:8px 0; border-bottom:1px solid #EEF2F7; align-items:center;">
+                  <div>
+                    <div style="font-size:13px; font-weight:700; color:#14283C;">{{ e.vendor }}</div>
+                    <div style="font-size:11px; color:#8AA0B8; font-weight:700;">{{ e.date }} · {{ e.cat }}</div>
+                  </div>
+                  <span style="font-size:13px; font-weight:800;">{{ e.amount }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="background:#fff; border:1px solid #E3E9F1; border-radius:12px; padding:16px 18px; overflow-x:auto;">
+            <div style="font-weight:800; font-size:15px; margin-bottom:10px;">Profit by job</div>
+            <div style="min-width:700px; display:grid; grid-template-columns:70px 1.4fr 90px 90px 90px 90px 1fr; gap:10px; padding:8px 0; border-bottom:1px solid #E3E9F1; font-size:11px; font-weight:800; letter-spacing:0.8px; color:#7A8FA6;">
+              <div>JOB</div><div>CUSTOMER</div><div style="text-align:right;">REVENUE</div><div style="text-align:right;">MATERIALS</div><div style="text-align:right;">LABOR</div><div style="text-align:right;">PROFIT</div><div>MARGIN</div>
+            </div>
+            <sc-for list="{{ jobRows }}" as="r" hint-placeholder-count="5">
+              <div onClick="{{ r.open }}" style="min-width:700px; display:grid; grid-template-columns:70px 1.4fr 90px 90px 90px 90px 1fr; gap:10px; padding:11px 0; border-bottom:1px solid #EEF2F7; align-items:center; cursor:pointer;" style-hover="background:#F5F9FD">
+                <span style="font-size:12px; font-weight:800; color:#1B6FAE;">{{ r.id }}</span>
+                <span style="font-size:13px; font-weight:700; color:#14283C;">{{ r.customer }}</span>
+                <span style="text-align:right; font-size:12.5px; font-weight:700;">{{ r.revenue }}</span>
+                <span style="text-align:right; font-size:12.5px; font-weight:700; color:#B0653A;">{{ r.materials }}</span>
+                <span style="text-align:right; font-size:12.5px; font-weight:700; color:#7A8FA6;">{{ r.labor }}</span>
+                <span style="text-align:right; font-size:12.5px; font-weight:800; color:#1F7A4D;">{{ r.profit }}</span>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <div style="flex:1; height:6px; background:#E8EEF5; border-radius:99px;"><div style="height:6px; border-radius:99px; background:#2E9E6B; width:{{ r.marginPct }}%;"></div></div>
+                  <span style="font-size:11.5px; font-weight:800; color:#1F7A4D; width:34px;">{{ r.marginPct }}%</span>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Settings" style="padding:24px 28px 40px;">
+        <div style="margin-bottom:18px;">
+          <div style="font-size:23px; font-weight:800; letter-spacing:-0.2px;">Settings — pricing & plans</div>
+          <div style="color:#5A6E84; font-size:13px; font-weight:600; margin-top:2px;">These rates drive the estimate builder and package pricing live. Try changing one.</div>
+        </div>
+        <div style="display:grid; grid-template-columns:1.5fr 1fr; gap:14px; align-items:start;">
+          <div style="background:#fff; border:1px solid #E3E9F1; border-radius:12px; padding:16px 18px;">
+            <div style="font-weight:800; font-size:15px; margin-bottom:8px;">Service pricing</div>
+            <div style="display:grid; grid-template-columns:2fr 110px 110px; gap:10px; padding:8px 0; border-bottom:1px solid #E3E9F1; font-size:11px; font-weight:800; letter-spacing:0.8px; color:#7A8FA6;">
+              <div>SERVICE</div><div>UNIT</div><div>RATE ($)</div>
+            </div>
+            <sc-for list="{{ svcRows }}" as="s" hint-placeholder-count="8">
+              <div style="display:grid; grid-template-columns:2fr 110px 110px; gap:10px; padding:8px 0; border-bottom:1px solid #EEF2F7; align-items:center; background:{{ s.bg }};">
+                <span style="font-size:13px; font-weight:700; color:#14283C;">{{ s.name }}</span>
+                <span style="font-size:12px; color:#7A8FA6; font-weight:700;">{{ s.unit }}</span>
+                <input type="number" step="0.01" value="{{ s.rate }}" onChange="{{ s.onRate }}" style="padding:6px 9px; border:1px solid #C9D6E4; border-radius:7px; font-size:13px; font-weight:700; width:100%; box-sizing:border-box;">
+              </div>
+            </sc-for>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:14px;">
+            <div style="background:#fff; border:1px solid #E3E9F1; border-radius:12px; padding:16px 18px;">
+              <div style="font-weight:800; font-size:15px; margin-bottom:4px;">Plan discounts</div>
+              <div style="font-size:12px; color:#5A6E84; font-weight:600; margin-bottom:12px;">Applied automatically on estimates.</div>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <div>
+                  <div style="font-size:11px; font-weight:800; letter-spacing:0.6px; color:#7A8FA6; margin-bottom:4px;">MONTHLY %</div>
+                  <input type="number" value="{{ discMonthly }}" onChange="{{ onDiscMonthly }}" style="width:100%; padding:8px 10px; border:1px solid #C9D6E4; border-radius:8px; font-size:14px; font-weight:800; box-sizing:border-box;">
+                </div>
+                <div>
+                  <div style="font-size:11px; font-weight:800; letter-spacing:0.6px; color:#7A8FA6; margin-bottom:4px;">QUARTERLY %</div>
+                  <input type="number" value="{{ discQuarterly }}" onChange="{{ onDiscQuarterly }}" style="width:100%; padding:8px 10px; border:1px solid #C9D6E4; border-radius:8px; font-size:14px; font-weight:800; box-sizing:border-box;">
+                </div>
+              </div>
+              <div style="margin-top:12px;">
+                <div style="font-size:11px; font-weight:800; letter-spacing:0.6px; color:#7A8FA6; margin-bottom:4px;">JOB MINIMUM ($)</div>
+                <input type="number" value="{{ minPriceRaw }}" onChange="{{ onMinPrice }}" style="width:100%; padding:8px 10px; border:1px solid #C9D6E4; border-radius:8px; font-size:14px; font-weight:800; box-sizing:border-box;">
+              </div>
+            </div>
+            <div style="background:#fff; border:1px solid #E3E9F1; border-radius:12px; padding:16px 18px;">
+              <div style="font-weight:800; font-size:15px; margin-bottom:4px;">Packages</div>
+              <div style="font-size:12px; color:#5A6E84; font-weight:600; margin-bottom:10px;">Auto-priced from property sq-ft at the rates on the left, less a 12% bundle discount.</div>
+              <sc-for list="{{ pkgConfig }}" as="p" hint-placeholder-count="3">
+                <div style="border:1px solid #E3E9F1; border-radius:9px; padding:10px 12px; margin-bottom:8px;">
+                  <div style="font-size:12px; font-weight:800; letter-spacing:1px; color:{{ p.color }};">{{ p.tier }}</div>
+                  <div style="font-size:12.5px; color:#3D5570; font-weight:600; margin-top:3px; line-height:1.4;">{{ p.services }}</div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="background:#fff; border:1px solid #E3E9F1; border-radius:12px; padding:16px 18px;">
+              <div style="font-weight:800; font-size:15px; margin-bottom:10px;">Branding</div>
+              <div style="display:flex; align-items:center; gap:12px;">
+                <img src="./logo.png" alt="logo" style="width:54px; height:54px; border-radius:10px; object-fit:cover;">
+                <div style="display:flex; gap:6px;">
+                  <div style="width:26px; height:26px; border-radius:7px; background:#0A1B2E; border:1px solid #E3E9F1;"></div>
+                  <div style="width:26px; height:26px; border-radius:7px; background:#1B6FAE;"></div>
+                  <div style="width:26px; height:26px; border-radius:7px; background:#2E9BD6;"></div>
+                  <div style="width:26px; height:26px; border-radius:7px; background:#F26F1F;"></div>
+                  <div style="width:26px; height:26px; border-radius:7px; background:#F9A03F;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;privacyMode&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: false, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Display&quot;}, &quot;upsellCount&quot;: {&quot;editor&quot;: &quot;range&quot;, &quot;default&quot;: 5, &quot;min&quot;: 1, &quot;max&quot;: 6, &quot;step&quot;: 1, &quot;tsType&quot;: &quot;number&quot;, &quot;section&quot;: &quot;Estimates&quot;}}">
+class Component extends DCLogic {
+  state = {
+    screen: 'dashboard', custId: 'c1', jobId: 'J-1042', estSent: false, custFilter: 'All', crewFilter: 'all', selDay: 22,
+    est: { customer: 'James Whitfield', fields: { house: 3200, roof: 3600, drive: 850, patio: 400, windows: 24 }, lines: [{ svc: 'hw', qty: 3200 }, { svc: 'dw', qty: 850 }, { svc: 'wc', qty: 24 }], plan: 'one', addons: [], discOverride: null },
+    rates: { hw: 0.25, dw: 0.25, rf: 0.31, gc: 0.35, gw1: 225, gw2: 350, pd: 0.25, ps: 0.75, wc: 10, wk: 0.25, wd: 0.20, pe: 0.35, rr: 25, os: 1.0 },
+    disc: { monthly: 15, quarterly: 10 }, minPrice: 150,
+    meas: { pts: [], closed: false, addr: '', shown: '', found: false, target: 'roof' },
+    cards: [
+      { id: 'p1', name: 'Robert Chen', detail: 'House wash inquiry — web form', value: 0, stage: 0, age: '2h' },
+      { id: 'p2', name: 'Palm Vista HOA', detail: 'Common area walkways + pillars', value: 0, stage: 0, age: '1d' },
+      { id: 'p3', name: 'Elena Ruiz', detail: 'Driveway + patio', value: 640, stage: 1, age: '2d' },
+      { id: 'p4', name: 'James Whitfield', detail: 'Roof wash + house', value: 1240, stage: 2, age: '3d' },
+      { id: 'p5', name: 'Harbor Point Plaza', detail: 'Parking garage — 19k sq ft', value: 3150, stage: 2, age: '5d' },
+      { id: 'p6', name: 'Danielle Moore', detail: 'House + windows — sent 6d ago', value: 860, stage: 3, age: '6d' },
+      { id: 'p7', name: 'Sunrise Storage Co.', detail: 'Warehouse soft wash', value: 2400, stage: 4, age: '1d' },
+      { id: 'p8', name: 'Maria Delgado', detail: 'Monthly plan — signed', value: 780, stage: 5, age: '8d' }
+    ]
+  };
+  SVCS = [
+    { id: 'hw', name: 'Full Exterior House Wash', unit: 'sqft', from: 'house', def: 2000, reason: 'Anchor service — soft wash siding, soffits, trim.' },
+    { id: 'dw', name: 'Driveway Cleaning', unit: 'sqft', from: 'drive', def: 600, reason: 'A clean house next to a stained driveway stands out.' },
+    { id: 'rf', name: 'Roof Wash', unit: 'sqft', from: 'roof', def: 3000, reason: 'Black streaking visible from the street — highest-ticket add-on.' },
+    { id: 'wc', name: 'Window Cleaning', unit: 'each', from: 'windows', def: 20, reason: 'Crew is already on-site with pure-water gear.' },
+    { id: 'pd', name: 'Pool Deck / Patio Cleaning', unit: 'sqft', from: 'patio', def: 400, reason: 'Algae buildup is a slip hazard when wet.' },
+    { id: 'wk', name: 'Walkway Cleaning', unit: 'sqft', from: null, def: 200, reason: 'Finishes the front-entry look for a small add.' },
+    { id: 'gc', name: 'Gutter Clean-Out', unit: 'sqft', from: 'house', def: 2000, reason: 'Clogged gutters undo a fresh roof wash fast.' },
+    { id: 'gw1', name: 'Gutter Whitening (1-story)', unit: 'flat', from: null, def: 1, reason: 'Removes tiger striping after the house wash.' },
+    { id: 'gw2', name: 'Gutter Whitening (2-story)', unit: 'flat', from: null, def: 1, reason: 'Removes tiger striping on two-story gutters.' },
+    { id: 'ps', name: 'Paver Sealing', unit: 'sqft', from: 'patio', def: 400, reason: 'Locks in the clean for 2–3 years.' },
+    { id: 'pe', name: 'Pool Enclosure Cleaning', unit: 'sqft', from: null, def: 800, reason: 'Screens collect mold fast in FL humidity.' },
+    { id: 'wd', name: 'Wood Deck Cleaning', unit: 'sqft', from: null, def: 300, reason: 'Restores graying wood before sealing.' },
+    { id: 'rr', name: 'Rust Removal', unit: 'each', from: null, def: 4, reason: 'Irrigation rust spots ruin clean concrete.' },
+    { id: 'os', name: 'Oil Stain Removal', unit: 'sqft', from: null, def: 50, reason: 'Degreases drip spots the surface clean leaves behind.' }
+  ];
+  STAGES = ['New', 'Contacted', 'Estimate Sent', 'Follow-Up', 'Scheduled', 'Won'];
+  PROV = { luis: { name: 'Luis Herrera', color: '#1B6FAE', initials: 'LH' }, marco: { name: 'Marco Diaz', color: '#F26F1F', initials: 'MD' }, jp: { name: 'J. Pinto', color: '#6D4BA6', initials: 'JP' } };
+  EVENTS = [
+    { day: 12, jobId: 'J-1042', customer: 'Maria Delgado', label: 'Delgado — house', detail: 'House wash + 24 windows', time: '9:00 AM', crew: ['luis', 'marco'] },
+    { day: 14, jobId: null, customer: 'Maria Delgado', label: 'Delgado plan visit', detail: 'Monthly plan maintenance', time: '10:00 AM', crew: ['marco'] },
+    { day: 15, jobId: 'J-1043', customer: 'Weston Bay HOA', label: 'Weston Bay HOA', detail: 'Sidewalks + entry pillars', time: '8:00 AM', crew: ['luis', 'marco', 'jp'] },
+    { day: 22, jobId: 'J-1044', customer: 'Harbor Point Plaza', label: 'Harbor Pt garage', detail: 'Parking garage — night work', time: '9:30 PM', crew: ['luis', 'marco', 'jp'] },
+    { day: 25, jobId: 'J-1045', customer: 'James Whitfield', label: 'Whitfield — roof', detail: 'Roof wash + house wash', time: '9:00 AM', crew: ['luis', 'marco'] },
+    { day: 27, jobId: 'J-1046', customer: 'Elena Ruiz', label: 'Ruiz — driveway', detail: 'Driveway + walkway', time: '9:00 AM', crew: ['marco'] },
+    { day: 29, jobId: null, customer: 'Sunrise Storage Co.', label: 'Sunrise Q3 visit', detail: 'Quarterly plan — warehouse', time: '8:00 AM', crew: ['luis', 'jp'] }
+  ];
+  CUSTOMERS = [
+    { id: 'c1', name: 'Maria Delgado', address: '412 Alhambra Cir, Coral Gables', phone: '(305) 555-0182', email: 'maria.d@gmail.com', type: 'Residential', plan: 'Monthly', lastJob: 'Aug 12 — House wash', ltv: 4280, notes: 'Gate code 4482. Two dogs — keep side gate closed. Prefers texts over calls.', comms: [{ kind: 'SMS', when: 'Aug 13', text: 'Sent after photos — replied "looks amazing, thank you!"' }, { kind: 'EMAIL', when: 'Aug 10', text: 'Monthly plan renewal confirmation sent.' }, { kind: 'CALL', when: 'Aug 4', text: 'Asked about adding windows to the plan. Quoted +$40/visit.' }] },
+    { id: 'c2', name: 'Weston Bay HOA', address: '1800 Bay Colony Dr, Weston', phone: '(954) 555-0134', email: 'manager@westonbay.org', type: 'HOA', plan: 'Quarterly', lastJob: 'Aug 15 — Sidewalks', ltv: 18650, notes: 'Board meets first Tuesday. Invoice net-30 to management company. COI on file through March.', comms: [{ kind: 'EMAIL', when: 'Aug 16', text: 'Sent completion report with 22 before/after photos.' }, { kind: 'CALL', when: 'Aug 9', text: 'Confirmed Q3 visit scope — added gate pillar cleaning.' }] },
+    { id: 'c3', name: 'Harbor Point Plaza', address: '2200 E Sunrise Blvd, Fort Lauderdale', phone: '(954) 555-0177', email: 'ops@harborpoint.com', type: 'Commercial', plan: '—', lastJob: 'Jun 30 — Sidewalks', ltv: 9400, notes: 'Night work only (after 9pm). Water spigots behind suite 140.', comms: [{ kind: 'EMAIL', when: 'Aug 15', text: 'Parking garage estimate #E-2049 sent — $3,150.' }] },
+    { id: 'c4', name: 'James Whitfield', address: '7420 SW 62nd Ct, Pinecrest', phone: '(305) 555-0119', email: 'jwhitfield@me.com', type: 'Residential', plan: '—', lastJob: 'None yet', ltv: 0, notes: 'Referral from Maria Delgado. Roof has heavy streaking on north face.', comms: [{ kind: 'EMAIL', when: 'Aug 17', text: 'Estimate #E-2051 sent — opened twice, no reply yet.' }, { kind: 'CALL', when: 'Aug 14', text: 'Walked property. Measured roof at 3,600 sq ft.' }] },
+    { id: 'c5', name: 'Sunrise Storage Co.', address: '9800 NW 44th St, Sunrise', phone: '(954) 555-0158', email: 'facilities@sunrisestorage.com', type: 'Commercial', plan: 'Quarterly', lastJob: 'May 20 — Warehouse wash', ltv: 6800, notes: 'Requires W-9 and COI before each visit. PO number goes on invoice.', comms: [{ kind: 'EMAIL', when: 'Aug 18', text: 'Q3 visit scheduled for Aug 29, PO #4471 received.' }] },
+    { id: 'c6', name: 'Elena Ruiz', address: '10250 SW 88th St, Kendall', phone: '(786) 555-0163', email: 'elena.ruiz@outlook.com', type: 'Residential', plan: '—', lastJob: 'None yet', ltv: 0, notes: 'Wants driveway + patio before a birthday party on Sep 5.', comms: [{ kind: 'SMS', when: 'Aug 18', text: 'Asked for estimate by Friday — builder draft in progress.' }] }
+  ];
+  JOBS = [
+    { id: 'J-1042', cust: 'Maria Delgado', custId: 'c1', services: 'House wash + 24 windows', date: 'Aug 12', status: 'Completed', revenue: 780, materials: 62, labor: 180, crew: 'Luis + Marco', mats: [{ name: 'SH 12.5% — 8 gal', cost: 34 }, { name: 'Surfactant (Slo-Mo) — 12 oz', cost: 11 }, { name: 'Window rinse bars / DI resin', cost: 17 }], timeline: [{ text: 'Payment received — card on file', when: 'Aug 12, 4:10 PM', dot: '#2E9E6B' }, { text: 'Job completed — 14 photos uploaded', when: 'Aug 12, 2:35 PM', dot: '#2E9BD6' }, { text: 'Crew checked in on site', when: 'Aug 12, 9:02 AM', dot: '#2E9BD6' }, { text: 'Agreement signed (Gold package)', when: 'Aug 6, 11:18 AM', dot: '#F26F1F' }] },
+    { id: 'J-1043', cust: 'Weston Bay HOA', custId: 'c2', services: 'Sidewalks + entry pillars', date: 'Aug 15', status: 'Completed', revenue: 2850, materials: 210, labor: 640, crew: 'Full crew (3)', mats: [{ name: 'SH 12.5% — 22 gal', cost: 94 }, { name: 'Degreaser — 4 gal', cost: 58 }, { name: 'Fuel surcharge — hot water rig', cost: 58 }], timeline: [{ text: 'Completion report emailed to board', when: 'Aug 16, 8:00 AM', dot: '#2E9BD6' }, { text: 'Job completed', when: 'Aug 15, 6:40 PM', dot: '#2E9E6B' }, { text: 'Agreement signed (Q3 scope)', when: 'Jul 30', dot: '#F26F1F' }] },
+    { id: 'J-1044', cust: 'Harbor Point Plaza', custId: 'c3', services: 'Parking garage — 19,600 sq ft', date: 'Aug 22', status: 'Scheduled', revenue: 3150, materials: 240, labor: 700, crew: 'Full crew (3) — night', mats: [{ name: 'Degreaser (est.) — 8 gal', cost: 116 }, { name: 'SH 12.5% (est.) — 18 gal', cost: 77 }, { name: 'Fuel (est.)', cost: 47 }], timeline: [{ text: 'Scheduled for Aug 22, 9:30 PM start', when: 'Aug 18', dot: '#2E9BD6' }, { text: 'Estimate accepted — awaiting signature', when: 'Aug 17', dot: '#F26F1F' }] },
+    { id: 'J-1045', cust: 'James Whitfield', custId: 'c4', services: 'Roof wash + house wash', date: 'Aug 25', status: 'Scheduled', revenue: 1240, materials: 145, labor: 300, crew: 'Luis + Marco', mats: [{ name: 'SH 12.5% (est.) — 30 gal', cost: 128 }, { name: 'Surfactant (est.)', cost: 17 }], timeline: [{ text: 'Tentatively scheduled pending signature', when: 'Aug 18', dot: '#2E9BD6' }, { text: 'Estimate #E-2051 sent', when: 'Aug 17', dot: '#F26F1F' }] },
+    { id: 'J-1046', cust: 'Elena Ruiz', custId: 'c6', services: 'Driveway + walkway', date: 'Aug 27', status: 'Scheduled', revenue: 420, materials: 38, labor: 90, crew: 'Marco', mats: [{ name: 'SH 12.5% (est.) — 6 gal', cost: 26 }, { name: 'Fuel (est.)', cost: 12 }], timeline: [{ text: 'Penciled in for Aug 27', when: 'Aug 18', dot: '#2E9BD6' }] }
+  ];
+  DOCS = [
+    { name: 'Estimate #E-2044 (v2)', meta: 'PDF · sent Aug 4 · opened 3×', status: 'Viewed', pillBg: '#EAF4FB', pillFg: '#1B6FAE' },
+    { name: 'Service Agreement — Gold package', meta: 'Signed Aug 6, 11:18 AM · IP 73.124.9.18', status: 'Signed', pillBg: '#E7F6EE', pillFg: '#1F7A4D' },
+    { name: 'Chemical application log', meta: 'Auto-filed by crew app · Aug 12', status: 'Filed', pillBg: '#F0F3F7', pillFg: '#5A6E84' },
+    { name: 'Invoice #1042', meta: 'Paid Aug 12 · card ending 4417', status: 'Paid', pillBg: '#E7F6EE', pillFg: '#1F7A4D' }
+  ];
+  go(screen) { this.setState({ screen }); }
+  money(n, cents) { return '$' + n.toLocaleString('en-US', { minimumFractionDigits: cents ? 2 : 0, maximumFractionDigits: cents ? 2 : 0 }); }
+  svc(id) { return this.SVCS.find(s => s.id === id); }
+  lineTotal(l) { return (this.state.rates[l.svc] || 0) * l.qty; }
+  qtyFor(id) { const s = this.svc(id); return s.from ? (this.state.est.fields[s.from] || 0) : s.def; }
+  qtyLabel(id, qty) { const s = this.svc(id); return s.unit === 'sqft' ? qty.toLocaleString() + ' sq ft' : s.unit === 'each' ? qty + ' ea' : 'flat rate'; }
+  setField(key, val) {
+    const est = this.state.est;
+    const fields = { ...est.fields, [key]: val };
+    const lines = est.lines.map(l => { const s = this.svc(l.svc); return s.from === key ? { ...l, qty: val } : l; });
+    this.setState({ est: { ...est, fields, lines } });
+  }
+  statusPill(status) { return status === 'Completed' ? { bg: '#E7F6EE', fg: '#1F7A4D' } : { bg: '#FDEEDF', fg: '#B45B14' }; }
+  shoelace(pts) { let a = 0; for (let i = 0; i < pts.length; i++) { const j = (i + 1) % pts.length; a += pts[i].x * pts[j].y - pts[j].x * pts[i].y; } return Math.abs(a / 2); }
+  renderVals() {
+    const st = this.state, est = st.est, rates = st.rates;
+    const money = this.money.bind(this);
+    const screen = st.screen;
+    const activeOf = { customerProfile: 'customers', jobProfile: 'jobs' };
+    const nav = (id, label, badge) => { const act = screen === id || activeOf[screen] === id; return { label, badge: badge || false, go: () => this.go(id), color: act ? '#14283C' : '#5A6E84', bg: act ? '#FDF3EA' : 'transparent', bar: act ? '#F26F1F' : 'transparent' }; };
+    const navGroups = [
+      { label: 'OVERVIEW', items: [nav('dashboard', 'Dashboard'), nav('pipeline', 'Pipeline', String(st.cards.filter(c => c.stage < 5).length)), nav('calendar', 'Calendar')] },
+      { label: 'OPERATIONS', items: [nav('customers', 'Customers'), nav('estimate', 'Estimates'), nav('jobs', 'Jobs'), nav('measure', 'Measure')] },
+      { label: 'BUSINESS', items: [nav('financials', 'Financials'), nav('settings', 'Settings')] }
+    ];
+    const priv = v => this.props.privacyMode ? '•••••' : v;
+    const pipelineValue = st.cards.filter(c => c.stage > 0 && c.stage < 5).reduce((a, c) => a + c.value, 0);
+    const kpis = [
+      { label: 'REVENUE (AUG)', value: priv('$12,840'), delta: '▲ 18% vs July', deltaColor: '#1F7A4D', valColor: '#14283C' },
+      { label: 'EXPENSES (AUG)', value: priv('$5,850'), delta: 'materials · labor · overhead', deltaColor: '#7A8FA6', valColor: '#14283C' },
+      { label: 'NET PROFIT (AUG)', value: priv('$6,990'), delta: '54% margin', deltaColor: '#1F7A4D', valColor: '#1F7A4D' },
+      { label: 'PIPELINE VALUE', value: priv(money(pipelineValue)), delta: st.cards.filter(c => c.stage < 5).length + ' open leads', deltaColor: '#7A8FA6', valColor: '#14283C' }
+    ];
+    const expLegend = [
+      { label: 'Labor', amount: '$3,240', color: '#2E6E9E' },
+      { label: 'Materials & supplies', amount: '$1,350', color: '#F26F1F' },
+      { label: 'Fuel', amount: '$412', color: '#F9A03F' },
+      { label: 'Insurance', amount: '$285', color: '#6D4BA6' },
+      { label: 'Marketing', amount: '$250', color: '#5CB8E8' },
+      { label: 'Equip & software', amount: '$313', color: '#3D5570' }
+    ];
+    const faMonths = [{ label: 'MAY', i: 9800, e: 4900 }, { label: 'JUN', i: 11200, e: 5600 }, { label: 'JUL', i: 10900, e: 5200 }, { label: 'AUG', i: 12840, e: 5850 }].map(m => ({ label: m.label, inc: Math.round(m.i / 12840 * 74) + 4, exp: Math.round(m.e / 12840 * 74) + 4 }));
+    const q3Months = [
+      { month: 'July', note: '$6,000 budgeted', amount: '$4,890', color: '#14283C' },
+      { month: 'August (MTD)', note: '$6,000 budgeted', amount: '$5,850', color: '#B45B14' },
+      { month: 'September', note: 'projected', amount: '$4,200', color: '#8AA0B8' }
+    ];
+    const plans = [
+      { name: 'Maria Delgado', detail: '$180/mo · next visit Sep 12', plan: 'MONTHLY', pillBg: '#FFF1E6', pillFg: '#B45B14' },
+      { name: 'Weston Bay HOA', detail: '$2,850/qtr · next visit Oct 1', plan: 'QUARTERLY', pillBg: '#EAF4FB', pillFg: '#1B6FAE' },
+      { name: 'Sunrise Storage Co.', detail: '$2,400/qtr · next visit Aug 29', plan: 'QUARTERLY', pillBg: '#EAF4FB', pillFg: '#1B6FAE' }
+    ];
+    const columns = this.STAGES.map((stage, si) => {
+      const cards = st.cards.filter(c => c.stage === si).map(c => ({
+        name: c.name, detail: c.detail, age: c.age + ' in stage', value: c.value ? money(c.value) : '—',
+        bar: si === 5 ? '#2E9E6B' : si >= 2 ? '#F26F1F' : '#2E9BD6', canAdvance: si < 5,
+        advance: () => this.setState({ cards: st.cards.map(x => x.id === c.id ? { ...x, stage: x.stage + 1 } : x) })
+      }));
+      const tot = st.cards.filter(c => c.stage === si).reduce((a, c) => a + c.value, 0);
+      return { stage: stage.toUpperCase(), total: tot ? money(tot) : String(cards.length), cards };
+    });
+    const typePill = t => t === 'Residential' ? { bg: '#EAF4FB', fg: '#1B6FAE' } : t === 'HOA' ? { bg: '#F3EDFB', fg: '#6D4BA6' } : { bg: '#FDEEDF', fg: '#B45B14' };
+    const filterDefs = ['All', 'Monthly', 'Quarterly', 'One-time'];
+    const custFilters = filterDefs.map(f => {
+      const n = f === 'All' ? this.CUSTOMERS.length : f === 'One-time' ? this.CUSTOMERS.filter(c => c.plan === '—').length : this.CUSTOMERS.filter(c => c.plan === f).length;
+      const act = st.custFilter === f;
+      return { label: f + ' (' + n + ')', pick: () => this.setState({ custFilter: f }), bg: act ? '#14283C' : '#fff', fg: act ? '#fff' : '#5A6E84', border: act ? '#14283C' : '#C9D6E4' };
+    });
+    const filtered = this.CUSTOMERS.filter(c => st.custFilter === 'All' ? true : st.custFilter === 'One-time' ? c.plan === '—' : c.plan === st.custFilter);
+    const customers = filtered.map(c => ({ name: c.name, address: c.address, type: c.type, typeBg: typePill(c.type).bg, typeFg: typePill(c.type).fg, plan: c.plan, planColor: c.plan === '—' ? '#B7C6D6' : c.plan === 'Monthly' ? '#B45B14' : '#1F7A4D', lastJob: c.lastJob, ltv: c.ltv ? money(c.ltv) : '—', open: () => this.setState({ custId: c.id, screen: 'customerProfile' }) }));
+    const cRec = this.CUSTOMERS.find(c => c.id === st.custId) || this.CUSTOMERS[0];
+    const cJobs = this.JOBS.filter(j => j.custId === cRec.id);
+    const cp = {
+      name: cRec.name, address: cRec.address, phone: cRec.phone, email: cRec.email, notes: cRec.notes,
+      stats: [{ label: 'LIFETIME VALUE', value: cRec.ltv ? money(cRec.ltv) : '—' }, { label: 'JOBS', value: String(cJobs.length || (cRec.ltv ? 6 : 0)) }, { label: 'PLAN', value: cRec.plan }, { label: 'BALANCE DUE', value: '$0' }],
+      jobs: (cJobs.length ? cJobs : this.JOBS.slice(0, 1)).map(j => ({ id: j.id, services: j.services, date: j.date + ', 2026', status: j.status, pillBg: this.statusPill(j.status).bg, pillFg: this.statusPill(j.status).fg, revenue: money(j.revenue), open: () => this.setState({ jobId: j.id, screen: 'jobProfile' }) })),
+      comms: cRec.comms.map(m => ({ ...m, kindColor: m.kind === 'SMS' ? '#6D4BA6' : m.kind === 'CALL' ? '#B45B14' : '#1B6FAE' }))
+    };
+    const estCust = this.CUSTOMERS.find(c => c.name === est.customer);
+    const propFields = [{ key: 'house', label: 'HOUSE SQ FT' }, { key: 'roof', label: 'ROOF SQ FT' }, { key: 'drive', label: 'DRIVE SQ FT' }, { key: 'patio', label: 'PATIO SQ FT' }, { key: 'windows', label: 'WINDOWS' }].map(f => ({ label: f.label, value: est.fields[f.key], onChange: e => this.setField(f.key, Number(e.target.value) || 0) }));
+    const unitLabel = s => s.unit === 'sqft' ? '/ sq ft' : s.unit === 'each' ? 'each' : 'flat';
+    const lines = est.lines.map((l, i) => {
+      const s = this.svc(l.svc);
+      return { name: s.name, qty: l.qty, rateLabel: '$' + rates[l.svc].toFixed(2) + ' ' + unitLabel(s), total: money(this.lineTotal(l), true), onQty: e => { const v = Number(e.target.value) || 0; this.setState({ est: { ...est, lines: est.lines.map((x, xi) => xi === i ? { ...x, qty: v } : x) } }); }, remove: () => this.setState({ est: { ...est, lines: est.lines.filter((x, xi) => xi !== i) } }) };
+    });
+    const inEst = id => est.lines.some(l => l.svc === id);
+    const upsellOrder = ['rf', 'wc', 'dw', 'pd', 'gw1', 'ps', 'gc', 'pe', 'rr'];
+    const addonIds = upsellOrder.filter(id => !inEst(id)).slice(0, Math.max(1, Math.min(6, this.props.upsellCount ?? 5)));
+    const mkAddon = id => {
+      const s = this.svc(id); const qty = this.qtyFor(id); const on = est.addons.includes(id);
+      return { name: s.name, reason: s.reason, qtyLabel: this.qtyLabel(id, qty), price: money(rates[id] * qty), checked: on, check: on ? '✓' : '', boxBorder: on ? '#F26F1F' : '#C9D6E4', boxBg: on ? '#F26F1F' : '#fff', toggle: () => this.setState({ est: { ...est, addons: on ? est.addons.filter(x => x !== id) : [...est.addons, id] } }) };
+    };
+    const addons = addonIds.map(mkAddon);
+    const svcSubtotal = est.lines.reduce((a, l) => a + this.lineTotal(l), 0);
+    const addonTotal = est.addons.filter(id => addonIds.includes(id)).reduce((a, id) => a + rates[id] * this.qtyFor(id), 0);
+    const planPct = est.plan === 'monthly' ? st.disc.monthly : est.plan === 'quarterly' ? st.disc.quarterly : 0;
+    const pct = est.discOverride ?? planPct;
+    const gross = svcSubtotal + addonTotal;
+    const discAmt = gross * pct / 100, total = gross - discAmt;
+    const planOpts = [
+      { id: 'one', label: 'One-time', sub: 'Full price' },
+      { id: 'quarterly', label: 'Quarterly', sub: 'Save ' + st.disc.quarterly + '% / visit' },
+      { id: 'monthly', label: 'Monthly', sub: 'Save ' + st.disc.monthly + '% / visit' }
+    ].map(p => ({ ...p, border: est.plan === p.id ? '#F26F1F' : '#E3E9F1', bg: est.plan === p.id ? '#FFF7F0' : '#fff', pick: () => this.setState({ est: { ...est, plan: p.id, discOverride: null } }) }));
+    const pvLines = est.lines.map(l => ({ name: this.svc(l.svc).name, qtyLabel: this.qtyLabel(l.svc, l.qty), total: money(this.lineTotal(l), true) }));
+    const pvAddons = addonIds.map(mkAddon);
+    const pkgPrice = ids => ids.reduce((a, id) => a + rates[id] * this.qtyFor(id), 0);
+    const pkgDefs = [
+      { tier: 'SILVER', sub: 'EXTERIOR REFRESH', ids: ['dw', 'wk', 'wc'], popular: false },
+      { tier: 'GOLD', sub: 'COMPLETE EXTERIOR', ids: ['hw', 'dw', 'wk', 'wc', 'pd'], popular: true },
+      { tier: 'PLATINUM', sub: 'COMPLETE PROPERTY', ids: ['hw', 'dw', 'wk', 'wc', 'pd', 'rf', 'gc'], popular: false }
+    ];
+    const packages = pkgDefs.map(p => {
+      const itemized = pkgPrice(p.ids), bundled = itemized * 0.88;
+      const current = est.lines.map(l => l.svc).sort().join() === [...p.ids].sort().join();
+      return {
+        tier: p.tier, sub: p.sub, items: p.ids.map(id => this.svc(id).name), popular: p.popular,
+        price: money(bundled), save: money(itemized - bundled),
+        border: current ? '#2E9E6B' : p.popular ? '#F26F1F' : '#E3E9F1', bg: current ? '#F4FBF7' : p.popular ? '#FFFBF7' : '#fff',
+        tierColor: p.tier === 'SILVER' ? '#7A8FA6' : p.tier === 'GOLD' ? '#B45B14' : '#14283C',
+        btnBg: current ? '#2E9E6B' : p.popular ? '#F26F1F' : '#fff', btnFg: current || p.popular ? '#fff' : '#14283C', btnBorder: current ? '#2E9E6B' : p.popular ? '#F26F1F' : '#C9D6E4',
+        btnLabel: current ? 'Selected ✓' : 'Upgrade to ' + p.tier.charAt(0) + p.tier.slice(1).toLowerCase(),
+        upgrade: () => this.setState({ est: { ...est, lines: p.ids.map(id => ({ svc: id, qty: this.qtyFor(id) })) } })
+      };
+    });
+    const jobs = this.JOBS.map(j => ({ id: j.id, customer: j.cust, services: j.services, date: j.date, status: j.status, pillBg: this.statusPill(j.status).bg, pillFg: this.statusPill(j.status).fg, revenue: money(j.revenue), profit: money(j.revenue - j.materials - j.labor), open: () => this.setState({ jobId: j.id, screen: 'jobProfile' }) }));
+    const jRec = this.JOBS.find(j => j.id === st.jobId) || this.JOBS[0];
+    const jProfit = jRec.revenue - jRec.materials - jRec.labor;
+    const jp = {
+      id: jRec.id, customer: jRec.cust, services: jRec.services, date: jRec.date + ', 2026', crew: jRec.crew, status: jRec.status,
+      pillBg: this.statusPill(jRec.status).bg, pillFg: this.statusPill(jRec.status).fg,
+      fin: [
+        { label: 'JOB REVENUE', value: money(jRec.revenue), sub: jRec.status === 'Completed' ? 'paid in full' : 'quoted', bar: '#2E9BD6', color: '#14283C' },
+        { label: 'MATERIALS', value: money(jRec.materials), sub: (jRec.materials / jRec.revenue * 100).toFixed(0) + '% of revenue', bar: '#B0653A', color: '#14283C' },
+        { label: 'LABOR', value: money(jRec.labor), sub: 'crew hours × rate', bar: '#7A8FA6', color: '#14283C' },
+        { label: 'JOB PROFIT', value: money(jProfit), sub: (jProfit / jRec.revenue * 100).toFixed(0) + '% margin', bar: '#2E9E6B', color: '#1F7A4D' }
+      ],
+      docs: this.DOCS, materials: jRec.mats.map(m => ({ name: m.name, cost: money(m.cost) })),
+      photos: ['BEFORE', 'BEFORE', 'BEFORE', 'AFTER', 'AFTER', 'AFTER'], timeline: jRec.timeline
+    };
+    const provChips = [{ id: 'all', label: 'All providers', color: '#14283C' }, { id: 'luis', label: 'Luis', color: this.PROV.luis.color }, { id: 'marco', label: 'Marco', color: this.PROV.marco.color }, { id: 'jp', label: 'J. Pinto', color: this.PROV.jp.color }].map(p => {
+      const act = st.crewFilter === p.id;
+      return { label: p.label, dot: p.color, pick: () => this.setState({ crewFilter: p.id }), bg: act ? '#14283C' : '#fff', fg: act ? '#fff' : '#5A6E84', border: act ? '#14283C' : '#C9D6E4' };
+    });
+    const evVisible = this.EVENTS.filter(e => st.crewFilter === 'all' || e.crew.includes(st.crewFilter));
+    const dayNames = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+    const calCells = [];
+    for (let i = 0; i < 42; i++) {
+      const day = i - 5; const valid = day >= 1 && day <= 31;
+      const evs = valid ? evVisible.filter(e => e.day === day) : [];
+      const sel = day === st.selDay;
+      calCells.push({
+        day: valid ? String(day) : '',
+        events: evs.map(e => { const c = this.PROV[e.crew[0]].color; return { label: e.label, bg: c + '1A', fg: c }; }),
+        bg: sel ? '#FDF3EA' : day === 20 ? '#F5F9FD' : '#fff', dayColor: sel ? '#F26F1F' : day === 20 ? '#1B6FAE' : '#7A8FA6',
+        pick: valid ? (() => this.setState({ selDay: day })) : (() => {})
+      });
+    }
+    const selEvents = evVisible.filter(e => e.day === st.selDay);
+    const dayEvents = selEvents.map(e => ({
+      customer: e.customer, time: e.time, detail: e.detail, color: this.PROV[e.crew[0]].color,
+      crew: e.crew.map(k => ({ name: this.PROV[k].name.split(' ')[0], bg: this.PROV[k].color })),
+      hasJob: !!e.jobId, openJob: () => e.jobId && this.setState({ jobId: e.jobId, screen: 'jobProfile' })
+    }));
+    const provSummary = Object.keys(this.PROV).map(k => {
+      const evs = this.EVENTS.filter(e => e.crew.includes(k));
+      return { name: this.PROV[k].name, color: this.PROV[k].color, initials: this.PROV[k].initials, count: String(evs.length), days: 'Aug ' + evs.map(e => e.day).join(' · ') };
+    });
+    const pts = st.meas.pts;
+    const areaSqft = pts.length >= 3 ? Math.round(this.shoelace(pts) * 0.3025) : 0;
+    const svgKids = [];
+    if (pts.length > 0) {
+      const ptStr = pts.map(p => p.x + ',' + p.y).join(' ');
+      if (st.meas.closed && pts.length >= 3) svgKids.push(React.createElement('polygon', { key: 'pg', points: ptStr, fill: 'rgba(242,111,31,0.25)', stroke: '#F26F1F', strokeWidth: 2.5 }));
+      else svgKids.push(React.createElement('polyline', { key: 'pl', points: ptStr, fill: 'none', stroke: '#F26F1F', strokeWidth: 2.5 }));
+      pts.forEach((p, i) => svgKids.push(React.createElement('circle', { key: 'c' + i, cx: p.x, cy: p.y, r: 4.5, fill: '#fff', stroke: '#F26F1F', strokeWidth: 2.5 })));
+      if (st.meas.closed && areaSqft > 0) {
+        const cx = pts.reduce((a, p) => a + p.x, 0) / pts.length, cy = pts.reduce((a, p) => a + p.y, 0) / pts.length;
+        svgKids.push(React.createElement('text', { key: 't', x: cx, y: cy, textAnchor: 'middle', fill: '#B45B14', fontWeight: 800, fontSize: 15, fontFamily: 'Barlow' }, areaSqft.toLocaleString() + ' sq ft'));
+      }
+    }
+    const measureSvg = React.createElement('svg', {
+      width: '100%', height: '100%', style: { position: 'absolute', inset: 0, cursor: 'crosshair' },
+      onClick: e => { if (st.meas.closed) return; const r = e.currentTarget.getBoundingClientRect(); this.setState({ meas: { ...st.meas, pts: [...pts, { x: Math.round(e.clientX - r.left), y: Math.round(e.clientY - r.top) }] } }); }
+    }, svgKids);
+    const canApply = st.meas.closed && areaSqft > 0;
+    const pl = [
+      { label: 'Revenue', value: '$12,840', color: '#fff' },
+      { label: 'Materials (COGS)', value: '−$1,010', color: '#F0A9B8' },
+      { label: 'Labor', value: '−$3,240', color: '#F0A9B8' },
+      { label: 'Overhead', value: '−$1,600', color: '#F0A9B8' }
+    ];
+    const overhead = [
+      { vendor: 'Southeast Chem Supply', date: 'Aug 14', cat: 'Supplies', amount: '$340' },
+      { vendor: 'Fuel — fleet cards', date: 'Aug 1–18', cat: 'Fuel', amount: '$412' },
+      { vendor: 'NextInsure — GL policy', date: 'Aug 1', cat: 'Insurance', amount: '$285' },
+      { vendor: 'Pump seal kit — repair', date: 'Aug 9', cat: 'Equipment', amount: '$118' },
+      { vendor: 'Google Ads — local', date: 'Aug 1', cat: 'Marketing', amount: '$250' },
+      { vendor: 'Software & phone', date: 'Aug 1', cat: 'Subscriptions', amount: '$195' }
+    ];
+    const jobRows = this.JOBS.map(j => { const p = j.revenue - j.materials - j.labor; return { id: j.id, customer: j.cust, revenue: money(j.revenue), materials: money(j.materials), labor: money(j.labor), profit: money(p), marginPct: Math.round(p / j.revenue * 100), open: () => this.setState({ jobId: j.id, screen: 'jobProfile' }) }; });
+    const svcRows = this.SVCS.map(s => ({ name: s.name, unit: s.unit === 'sqft' ? 'per sq ft' : s.unit === 'each' ? 'per unit' : 'flat', rate: rates[s.id], bg: s.id === 'wc' ? '#FFFBF4' : 'transparent', onRate: e => this.setState({ rates: { ...rates, [s.id]: Number(e.target.value) || 0 } }) }));
+    const pkgConfig = [
+      { tier: 'SILVER — EXTERIOR REFRESH', color: '#7A8FA6', services: 'Driveway + walkway + windows' },
+      { tier: 'GOLD — COMPLETE EXTERIOR', color: '#B45B14', services: 'House wash + driveway + walkway + windows + patio' },
+      { tier: 'PLATINUM — COMPLETE PROPERTY', color: '#14283C', services: 'Gold + roof wash + gutter clean-out' }
+    ];
+    return {
+      navGroups, today: 'Thursday, August 20, 2026',
+      isDashboard: screen === 'dashboard', isPipeline: screen === 'pipeline', isCustomers: screen === 'customers', isCustomerProfile: screen === 'customerProfile', isEstimate: screen === 'estimate', isJobs: screen === 'jobs', isJobProfile: screen === 'jobProfile', isCalendar: screen === 'calendar', isMeasure: screen === 'measure', isFinancials: screen === 'financials', isSettings: screen === 'settings',
+      goEstimate: () => this.go('estimate'), goPipeline: () => this.go('pipeline'), goCalendar: () => this.go('calendar'), goCustomers: () => this.go('customers'), goJobs: () => this.go('jobs'), goMeasure: () => this.go('measure'),
+      kpis, expTotal: priv('$5,850'), expLegend, faIncome: priv('$12,840'), faExpense: priv('$5,850'), faProfit: priv('$6,990'), faMonths, q3Months, weekLabels: ['W1', 'W2', 'W3', 'W4', 'W5', 'W6', 'W7', 'W8'], plans, mrr: this.props.privacyMode ? '•••' : '$1,930/mo',
+      columns, pipeSummary: st.cards.filter(c => c.stage < 5).length + ' open leads · ' + money(pipelineValue) + ' in play',
+      customers, custCount: String(this.CUSTOMERS.length), custFilters, memberCount: '3', monthlyCount: '1', cp,
+      estCustomer: est.customer, estAddress: estCust ? estCust.address : '—', onEstCustomer: e => this.setState({ est: { ...est, customer: e.target.value } }),
+      propFields, lines, onAddService: e => { const id = e.target.value; if (!id) return; e.target.value = ''; if (!inEst(id)) this.setState({ est: { ...est, lines: [...est.lines, { svc: id, qty: this.qtyFor(id) }], addons: est.addons.filter(x => x !== id) } }); },
+      addons, pvAddons, planOpts, pvLines,
+      discPct: pct, onDiscPct: e => this.setState({ est: { ...est, discOverride: Math.max(0, Math.min(100, Number(e.target.value) || 0)) } }),
+      sumSubtotal: money(svcSubtotal, true), sumAddons: money(addonTotal, true), sumWithAddons: money(gross, true), discAmt: money(discAmt, true), estTotal: money(total, true),
+      totalLabel: est.plan === 'one' ? 'TOTAL' : 'PER VISIT', belowMin: total < st.minPrice && gross > 0, minPrice: money(st.minPrice),
+      sendLabel: st.estSent ? 'Sent ✓' : 'Send estimate', sendBg: st.estSent ? '#2E9E6B' : '#F26F1F',
+      sendEstimate: () => { if (!st.estSent) this.setState({ estSent: true, cards: [{ id: 'pNew', name: est.customer, detail: 'Estimate #1024 — ' + money(total), value: Math.round(total), stage: 2, age: 'now' }, ...st.cards.filter(c => c.name !== est.customer)] }); },
+      packages,
+      jobs, jp, dayNames, calCells, provChips, dayTitle: 'August ' + st.selDay + ', 2026', daySub: selEvents.length + (selEvents.length === 1 ? ' visit scheduled' : ' visits scheduled'), dayEvents, dayEmpty: selEvents.length === 0, provSummary,
+      measAddr: st.meas.addr, measAddrShown: st.meas.shown, onMeasAddr: e => this.setState({ meas: { ...st.meas, addr: e.target.value } }),
+      onLocate: () => this.setState({ meas: { ...st.meas, found: true, shown: st.meas.addr || '7420 SW 62nd Ct, Pinecrest' } }),
+      parcelStroke: st.meas.found ? '#F26F1F' : '#AFBBC8', measureSvg,
+      measPtsLabel: pts.length + (pts.length === 1 ? ' point' : ' points') + (st.meas.closed ? ' · closed' : ''),
+      onUndoPt: () => this.setState({ meas: { ...st.meas, pts: pts.slice(0, -1), closed: false } }),
+      onClearPts: () => this.setState({ meas: { ...st.meas, pts: [], closed: false } }),
+      onCloseShape: () => { if (pts.length >= 3) this.setState({ meas: { ...st.meas, closed: true } }); },
+      measArea: areaSqft > 0 ? areaSqft.toLocaleString() + ' sq ft' : '—',
+      measStatus: st.meas.closed ? 'Shape closed — ready to apply' : pts.length >= 3 ? 'Live estimate — close the shape to lock' : 'Outline at least 3 corners',
+      measTarget: st.meas.target, onMeasTarget: e => this.setState({ meas: { ...st.meas, target: e.target.value } }),
+      applyBg: canApply ? '#F26F1F' : '#3D5570',
+      applyMeasure: () => { if (canApply) { this.setField(st.meas.target, areaSqft); this.go('estimate'); } },
+      recentMeas: [{ addr: '412 Alhambra Cir', area: '3,180 sq ft', meta: 'Roof · Aug 14 · applied to #E-2044' }, { addr: '2200 E Sunrise Blvd', area: '19,600 sq ft', meta: 'Garage slab · Aug 15 · applied to #E-2049' }],
+      pl, overhead, jobRows, svcRows, pkgConfig,
+      discMonthly: st.disc.monthly, discQuarterly: st.disc.quarterly, minPriceRaw: st.minPrice,
+      onDiscMonthly: e => this.setState({ disc: { ...st.disc, monthly: Number(e.target.value) || 0 } }),
+      onDiscQuarterly: e => this.setState({ disc: { ...st.disc, quarterly: Number(e.target.value) || 0 } }),
+      onMinPrice: e => this.setState({ minPrice: Number(e.target.value) || 0 })
+    };
+  }
+}
+</script>
+</body>
+</html>
