@@ -1,0 +1,7 @@
+# Never upload secrets, the local database, or build output
+.env*
+.data
+.tmp-test
+.next
+node_modules
+"Start Pintos CRM.command"
