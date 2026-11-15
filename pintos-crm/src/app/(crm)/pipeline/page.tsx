@@ -21,8 +21,9 @@ export default async function PipelinePage({ searchParams }: { searchParams: Pro
         subtitle={
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
             <span>
-              {open.length} open deal{open.length === 1 ? "" : "s"} · {money(open.reduce((s, c) => s + c.value, 0))} · drag a
-              card or press → to move it
+              {open.length} open deal{open.length === 1 ? "" : "s"} · {money(open.reduce((s, c) => s + c.value, 0))}
+              <span className="hidden md:inline"> · drag a card or press → to move it</span>
+              <span className="md:hidden"> · pick a stage below</span>
             </span>
             <SyncBar lastSyncAt={sync.lastSyncAt?.toISOString() ?? null} lastError={sync.lastError} />
           </div>

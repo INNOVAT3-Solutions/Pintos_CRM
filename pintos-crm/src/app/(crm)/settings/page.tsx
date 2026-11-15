@@ -88,7 +88,7 @@ export default async function SettingsPage() {
         )}
 
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[620px] text-left text-[13px]">
+          <table className="stack-table w-full min-w-[620px] text-left text-[13px]">
             <thead>
               <tr className="border-b border-line-soft text-[11px] font-extrabold tracking-[0.8px] text-muted uppercase">
                 <th className="py-2 pr-3">Area</th>
@@ -100,11 +100,11 @@ export default async function SettingsPage() {
             <tbody>
               {status.checks.map((c) => (
                 <tr key={c.key} className="border-b border-line-soft align-top last:border-0">
-                  <td className="py-2.5 pr-3 font-extrabold text-ink">{c.label}</td>
-                  <td className="py-2.5 pr-3">
+                  <td data-label="" className="py-2.5 pr-3 font-extrabold text-ink">{c.label}</td>
+                  <td data-label="Status" className="py-2.5 pr-3">
                     <Pill tone={STATE_PILL[c.state].tone}>{STATE_PILL[c.state].text}</Pill>
                   </td>
-                  <td className="py-2.5 pr-3 font-semibold text-ink-2">
+                  <td data-label="In GHL now" className="py-2.5 pr-3 font-semibold text-ink-2">
                     {c.state === "ok" ? (
                       c.detail
                     ) : c.state === "needs_setup" ? (
@@ -117,7 +117,7 @@ export default async function SettingsPage() {
                       <span className="text-bad">{c.detail}</span>
                     )}
                   </td>
-                  <td className="py-2.5 font-semibold text-muted">{c.usedFor}</td>
+                  <td data-label="Used for" className="py-2.5 font-semibold text-muted">{c.usedFor}</td>
                 </tr>
               ))}
             </tbody>
@@ -137,7 +137,7 @@ export default async function SettingsPage() {
         ) : (
           <>
             <div className="mt-3 overflow-x-auto">
-              <table className="w-full min-w-[560px] text-left text-[13px]">
+              <table className="stack-table w-full min-w-[560px] text-left text-[13px]">
                 <thead>
                   <tr className="border-b border-line-soft text-[11px] font-extrabold tracking-[0.8px] text-muted uppercase">
                     <th className="py-2 pr-3">Name</th>
@@ -150,15 +150,15 @@ export default async function SettingsPage() {
                 <tbody>
                   {staff.map((s) => (
                     <tr key={s.id} className="border-b border-line-soft last:border-0">
-                      <td className="py-2.5 pr-3 font-extrabold text-ink">
+                      <td data-label="" className="py-2.5 pr-3 font-extrabold text-ink">
                         {s.name} {s.id === me.id && <span className="font-semibold text-muted">(you)</span>}
                       </td>
-                      <td className="py-2.5 pr-3 font-semibold text-ink-2">{s.email}</td>
-                      <td className="py-2.5 pr-3 font-semibold text-ink-2 capitalize">{s.role}</td>
-                      <td className="py-2.5 pr-3 font-semibold text-muted">
+                      <td data-label="Email" className="py-2.5 pr-3 font-semibold text-ink-2">{s.email}</td>
+                      <td data-label="Role" className="py-2.5 pr-3 font-semibold text-ink-2 capitalize">{s.role}</td>
+                      <td data-label="Last sign-in" className="py-2.5 pr-3 font-semibold text-muted">
                         {s.lastLoginAt ? dateFmt.format(s.lastLoginAt) : "Never"}
                       </td>
-                      <td className="py-2.5 text-right">
+                      <td data-label="" className="py-2.5 text-right">
                         {s.id !== me.id && <StaffActiveToggle id={s.id} active={s.active} />}
                         {!s.active && <Pill tone="neutral">Off</Pill>}
                       </td>

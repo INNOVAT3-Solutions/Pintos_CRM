@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Barlow, Barlow_Semi_Condensed } from "next/font/google";
 import "./globals.css";
 
@@ -18,7 +18,21 @@ export const metadata: Metadata = {
   title: { default: "Pintos CRM", template: "%s · Pintos CRM" },
   description: "Pinto's Pressure Washing — customers, estimates and jobs, synced with GoHighLevel.",
   robots: { index: false, follow: false },
-  icons: { icon: "/logo.png" },
+  // Square, solid-background icons made from the logo: phones squash and black-fill the wide transparent logo.png.
+  icons: {
+    icon: [{ url: "/icons/favicon-32.png", sizes: "32x32", type: "image/png" }, { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" }],
+    apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+  },
+  manifest: "/manifest.webmanifest",
+  appleWebApp: { capable: true, title: "Pintos CRM", statusBarStyle: "default" },
+};
+
+/** Full-bleed on notched phones (the shell pads for the safe areas) and a light browser bar. */
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#ffffff",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

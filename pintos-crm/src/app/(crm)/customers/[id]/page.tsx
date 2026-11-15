@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { desc, eq } from "drizzle-orm";
 import { getDb, schema } from "@/lib/db";
 import { MeasurementList } from "@/components/measurement-list";
-import { Mail, MapPin, Phone } from "lucide-react";
+import { Mail, MapPin, MessageSquare, Navigation, Phone, Ruler } from "lucide-react";
 import { getCustomer, getPipelines } from "@/lib/crm/queries";
 import { ensureContact, ensureFresh } from "@/lib/sync";
 import { fetchNotes, type RawNote } from "@/lib/ghl/api";
@@ -103,7 +103,7 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
               </Link>
               <a
                 href="#text"
-                className="rounded-[10px] border border-line-field bg-surface px-[15px] py-[9px] text-[13px] font-extrabold text-ink hover:bg-field"
+                className="rounded-[10px] border border-line-field bg-surface px-[15px] py-[9px] text-[13px] font-extrabold text-ink hover:bg-field max-md:hidden"
               >
                 Send text
               </a>
@@ -111,6 +111,33 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
           }
         />
       </div>
+
+      {/* Phones: the four things you do standing in the driveway, one thumb each. */}
+      <nav aria-label="Quick actions" className="-mt-1 mb-4 grid grid-cols-4 gap-2 md:hidden">
+        {[
+          c.phone && { href: `tel:${c.phone}`, label: "Call", icon: Phone },
+          { href: "#text", label: "Text", icon: MessageSquare },
+          profile.address && {
+            href: `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(profile.address)}`,
+            label: "Directions",
+            icon: Navigation,
+            external: true,
+          },
+          { href: `/measure?contact=${c.id}`, label: "Measure", icon: Ruler },
+        ]
+          .filter((a): a is { href: string; label: string; icon: typeof Phone; external?: boolean } => Boolean(a))
+          .map(({ href, label, icon: Icon, external }) => (
+            <a
+              key={label}
+              href={href}
+              {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
+              className="flex min-h-[60px] flex-col items-center justify-center gap-1 rounded-xl border border-line bg-surface text-[12px] font-extrabold text-ink active:bg-hover"
+            >
+              <Icon size={19} className="text-blue" aria-hidden />
+              {label}
+            </a>
+          ))}
+      </nav>
 
       <div className="mb-1 -mt-2">
         <SyncBar lastSyncAt={sync.lastSyncAt?.toISOString() ?? null} lastError={sync.lastError} />

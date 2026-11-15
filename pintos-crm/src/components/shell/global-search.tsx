@@ -8,7 +8,7 @@ import { quickSearch } from "@/lib/crm/actions";
 type Hit = { id: string; name: string; detail: string | null };
 
 /** Top-bar search: suggests matching customers as you type; Enter opens the full results. */
-export function GlobalSearch() {
+export function GlobalSearch({ autoFocus = false, onDone }: { autoFocus?: boolean; onDone?: () => void } = {}) {
   const router = useRouter();
   const listId = useId();
   const [q, setQ] = useState("");
@@ -37,14 +37,17 @@ export function GlobalSearch() {
   const go = (path: string) => {
     setOpen(false);
     setQ("");
+    onDone?.();
     router.push(path);
   };
 
   return (
-    <div className="relative max-w-[420px] flex-1">
-      <Search size={15} className="pointer-events-none absolute top-[9px] left-3 text-muted" aria-hidden />
+    <div className="relative min-w-0 flex-1 md:max-w-[420px]">
+      <Search size={15} className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-muted" aria-hidden />
       <input
         type="search"
+        autoFocus={autoFocus}
+        enterKeyHint="search"
         role="combobox"
         aria-label="Search customers"
         aria-expanded={open && hits.length > 0}
@@ -71,9 +74,10 @@ export function GlobalSearch() {
             else if (q.trim()) go(`/customers?q=${encodeURIComponent(q.trim())}`);
           } else if (e.key === "Escape") {
             setOpen(false);
+            onDone?.();
           }
         }}
-        className="w-full rounded-full border border-line-field bg-field py-2 pr-3 pl-[34px] text-[12.5px] font-semibold"
+        className="h-10 w-full rounded-full border border-line-field bg-field pr-3 pl-[34px] text-[12.5px] font-semibold md:h-auto md:py-2"
       />
       {open && hits.length > 0 && (
         <ul
@@ -92,7 +96,7 @@ export function GlobalSearch() {
                 go(`/customers/${h.id}`);
               }}
               onMouseEnter={() => setActive(i)}
-              className={`cursor-pointer px-3.5 py-2 ${i === active ? "bg-hover" : ""}`}
+              className={`cursor-pointer px-3.5 py-2.5 ${i === active ? "bg-hover" : ""}`}
             >
               <div className="text-[13px] font-extrabold text-ink">{h.name}</div>
               {h.detail && <div className="text-[11.5px] font-semibold text-muted">{h.detail}</div>}

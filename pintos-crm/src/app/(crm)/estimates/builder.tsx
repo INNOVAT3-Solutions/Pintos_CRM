@@ -48,7 +48,7 @@ export interface BuilderEstimate {
 }
 
 const input =
-  "w-full rounded-lg border border-line-field bg-surface px-2.5 py-1.5 text-[13px] font-semibold text-ink focus:border-sky focus:outline-none disabled:bg-field";
+  "w-full rounded-lg border border-line-field bg-surface px-2.5 py-2 text-[13px] md:py-1.5 font-semibold text-ink focus:border-sky focus:outline-none disabled:bg-field";
 const num = (s: string) => {
   const n = Number(s.replace(/[,$\s]/g, ""));
   return Number.isFinite(n) && n >= 0 ? n : 0;
@@ -374,7 +374,7 @@ export function EstimateBuilder({
               return (
                 <li key={i} className="rounded-xl border border-line-soft bg-surface-soft p-3">
                   <div className="flex flex-wrap items-start gap-2">
-                    <div className="min-w-[180px] flex-1">
+                    <div className="order-1 min-w-0 flex-1 basis-[calc(100%-3rem)] sm:min-w-[180px] sm:basis-auto">
                       <div className="text-[13.5px] font-extrabold text-ink">{l.name}</div>
                       <div className="text-[11.5px] font-semibold text-muted">
                         {describeLine(l)}
@@ -387,7 +387,7 @@ export function EstimateBuilder({
                       </div>
                     </div>
                     {l.unit !== "flat" && (
-                      <label className="w-[110px]">
+                      <label className="order-3 min-w-0 flex-1 sm:w-[110px] sm:flex-none">
                         <span className="sr-only">Quantity</span>
                         <div className="relative">
                           <input
@@ -398,16 +398,16 @@ export function EstimateBuilder({
                             onChange={(e) => setLine(i, { qty: num(e.target.value) })}
                             className={`${input} pr-12`}
                           />
-                          <span className="pointer-events-none absolute top-[7px] right-2 text-[11px] font-bold text-faint">
+                          <span className="pointer-events-none absolute top-1/2 -translate-y-1/2 right-2 text-[11px] font-bold text-faint">
                             {UNIT_LABEL[l.unit].short || "qty"}
                           </span>
                         </div>
                       </label>
                     )}
-                    <label className="w-[104px]">
+                    <label className="order-3 min-w-0 flex-1 sm:w-[104px] sm:flex-none">
                       <span className="sr-only">Unit price</span>
                       <div className="relative">
-                        <span className="pointer-events-none absolute top-[7px] left-2 text-[12px] font-bold text-faint">$</span>
+                        <span className="pointer-events-none absolute top-1/2 -translate-y-1/2 left-2 text-[12px] font-bold text-faint">$</span>
                         <input
                           inputMode="decimal"
                           aria-label={`${l.name} price`}
@@ -418,7 +418,7 @@ export function EstimateBuilder({
                         />
                       </div>
                     </label>
-                    <div className="w-[88px] pt-1.5 text-right text-[14px] font-extrabold text-ink">{money(lineTotal(l))}</div>
+                    <div className="order-3 w-[88px] pt-1.5 text-right text-[14px] font-extrabold text-ink">{money(lineTotal(l))}</div>
                     {!locked && (
                       <button
                         type="button"
@@ -427,7 +427,7 @@ export function EstimateBuilder({
                           setLines((ls) => ls.filter((_, j) => j !== i));
                           touch();
                         }}
-                        className="flex size-8 cursor-pointer items-center justify-center rounded-lg text-subtle hover:bg-hover hover:text-bad"
+                        className="order-2 flex size-10 cursor-pointer items-center justify-center rounded-lg text-subtle hover:bg-hover hover:text-bad sm:order-last sm:size-8"
                       >
                         <Trash2 size={15} aria-hidden />
                       </button>
@@ -494,7 +494,7 @@ export function EstimateBuilder({
               <ul className="mt-3 space-y-2">
                 {planItems.map((p, i) => (
                   <li key={i} className="flex flex-wrap items-center gap-2 rounded-xl border border-line-soft bg-surface-soft p-3">
-                    <div className="min-w-[160px] flex-1">
+                    <div className="order-1 min-w-0 flex-1 basis-[calc(100%-3rem)] sm:min-w-[160px] sm:basis-auto">
                       <div className="text-[13.5px] font-extrabold text-ink">{p.name}</div>
                       <div className="text-[11.5px] font-semibold text-muted">
                         Full price {money(p.fullPrice)}
@@ -506,7 +506,7 @@ export function EstimateBuilder({
                       value={p.frequency}
                       disabled={locked}
                       onChange={(e) => setPlan(i, { frequency: e.target.value as Frequency })}
-                      className={`${input} w-[150px]`}
+                      className={`${input} order-3 min-w-0 flex-1 sm:w-[150px] sm:flex-none`}
                     >
                       {FREQUENCIES.filter((f) => terms.frequencies.includes(f.id)).map((f) => (
                         <option key={f.id} value={f.id}>
@@ -514,10 +514,10 @@ export function EstimateBuilder({
                         </option>
                       ))}
                     </select>
-                    <label className="w-[120px]">
+                    <label className="order-3 min-w-0 flex-1 sm:w-[120px] sm:flex-none">
                       <span className="sr-only">Per visit</span>
                       <div className="relative">
-                        <span className="pointer-events-none absolute top-[7px] left-2 text-[12px] font-bold text-faint">$</span>
+                        <span className="pointer-events-none absolute top-1/2 -translate-y-1/2 left-2 text-[12px] font-bold text-faint">$</span>
                         <input
                           inputMode="decimal"
                           aria-label={`${p.name} price per visit`}
@@ -526,10 +526,10 @@ export function EstimateBuilder({
                           onChange={(e) => setPlan(i, { perVisit: num(e.target.value) })}
                           className={`${input} pl-5 pr-12`}
                         />
-                        <span className="pointer-events-none absolute top-[7px] right-2 text-[11px] font-bold text-faint">/visit</span>
+                        <span className="pointer-events-none absolute top-1/2 -translate-y-1/2 right-2 text-[11px] font-bold text-faint">/visit</span>
                       </div>
                     </label>
-                    <label className="flex cursor-pointer items-center gap-1.5 text-[12px] font-bold text-ink-2" title="Shown to the homeowner unticked; they can add it">
+                    <label className="order-4 flex min-h-10 cursor-pointer items-center gap-1.5 text-[12px] font-bold text-ink-2" title="Shown to the homeowner unticked; they can add it">
                       <input
                         type="checkbox"
                         className="size-3.5 accent-brand"
@@ -547,7 +547,7 @@ export function EstimateBuilder({
                           setPlanItems((ps) => ps.filter((_, j) => j !== i));
                           touch();
                         }}
-                        className="flex size-8 cursor-pointer items-center justify-center rounded-lg text-subtle hover:bg-hover hover:text-bad"
+                        className="order-2 flex size-10 cursor-pointer items-center justify-center rounded-lg text-subtle hover:bg-hover hover:text-bad sm:order-last sm:size-8"
                       >
                         <Trash2 size={15} aria-hidden />
                       </button>

@@ -2,12 +2,13 @@ import Link from "next/link";
 import { and, desc, eq, gte, inArray, isNotNull } from "drizzle-orm";
 import { requireUser } from "@/lib/auth";
 import { getDb, schema } from "@/lib/db";
-import { calendarLabel, listCalendars, listEvents } from "@/lib/ghl/calendars";
+import { getSchedule } from "@/lib/calendar/schedule";
 import { getFinancials } from "@/lib/financials/server";
 import { ensureFresh } from "@/lib/sync";
 import { subtotal } from "@/lib/estimates/pricing";
-import { ago, easternIso, easternParts, fmtDate, fmtTime, money, startOfMonthEastern } from "@/lib/format";
+import { ago, easternParts, fmtDate, money, startOfMonthEastern } from "@/lib/format";
 import { Card, Pill, SectionLabel } from "@/components/ui";
+import { ScheduleCalendar } from "@/components/schedule/schedule-calendar";
 
 export const metadata = { title: "Dashboard" };
 
@@ -24,7 +25,7 @@ export default async function DashboardPage() {
   const today = easternParts(new Date()).date;
   const fortnightAgo = new Date(Date.now() - 14 * 86_400_000);
 
-  const [fin, openDeals, estimatesThisMonth, waiting, toSchedule, problemsE, problemsJ, newLeads, calendars, todays] = await Promise.all([
+  const [fin, openDeals, estimatesThisMonth, waiting, toSchedule, problemsE, problemsJ, newLeads, schedule] = await Promise.all([
     getFinancials(1),
     db.select({ value: schema.ghlOpportunities.value }).from(schema.ghlOpportunities).where(eq(schema.ghlOpportunities.status, "open")),
     db.select().from(schema.estimates).where(and(isNotNull(schema.estimates.sentAt), gte(schema.estimates.sentAt, monthStart))),
@@ -33,14 +34,12 @@ export default async function DashboardPage() {
     db.select({ id: schema.estimates.id, number: schema.estimates.number, err: schema.estimates.ghlError }).from(schema.estimates).where(isNotNull(schema.estimates.ghlError)).limit(5),
     db.select({ id: schema.jobs.id, number: schema.jobs.number, err: schema.jobs.ghlError }).from(schema.jobs).where(isNotNull(schema.jobs.ghlError)).limit(5),
     db.select().from(schema.ghlContacts).where(gte(schema.ghlContacts.dateAdded, fortnightAgo)).orderBy(desc(schema.ghlContacts.dateAdded)).limit(6),
-    listCalendars().catch(() => []),
-    listEvents(new Date(easternIso(today, "00:00")), new Date(easternIso(today, "23:59"))).catch(() => null),
+    getSchedule({ view: "day", date: today, person: "all" }),
   ]);
 
-  const ids = [...new Set([...waiting.map((e) => e.contactId), ...toSchedule.map((j) => j.contactId), ...(todays ?? []).map((e) => e.contactId).filter((x): x is string => !!x)])];
+  const ids = [...new Set([...waiting.map((e) => e.contactId), ...toSchedule.map((j) => j.contactId)])];
   const contacts = ids.length ? await db.select({ id: schema.ghlContacts.id, name: schema.ghlContacts.name }).from(schema.ghlContacts).where(inArray(schema.ghlContacts.id, ids)) : [];
   const name = new Map(contacts.map((c) => [c.id, c.name]));
-  const calName = new Map(calendars.map((c) => [c.id, calendarLabel(c.name)]));
 
   const accepted = estimatesThisMonth.filter((e) => e.status === "accepted").length;
   const decided = estimatesThisMonth.filter((e) => e.status === "accepted" || e.status === "declined").length;
@@ -97,35 +96,12 @@ export default async function DashboardPage() {
         </div>
       )}
 
-      <div className="grid items-start gap-3.5 lg:grid-cols-3">
-        <Card>
-          <div className="mb-2 flex items-center justify-between">
-            <div className="text-[15px] font-extrabold">Today</div>
-            <Link href="/calendar" className="text-[12px] font-extrabold text-blue hover:text-brand">
-              Calendar →
-            </Link>
-          </div>
-          {todays === null ? (
-            <p className="text-[12.5px] font-semibold text-bad">Couldn&apos;t load today&apos;s calendar from GHL.</p>
-          ) : todays.filter((e) => e.status !== "cancelled").length === 0 ? (
-            <p className="text-[12.5px] font-semibold text-faint">Nothing on the calendar today.</p>
-          ) : (
-            <ul>
-              {todays
-                .filter((e) => e.status !== "cancelled")
-                .map((e) => (
-                  <li key={e.id} className="border-b border-line-soft py-2 last:border-0">
-                    <div className="text-[11.5px] font-extrabold text-muted">
-                      {fmtTime(e.start)} – {fmtTime(e.end)} · {calName.get(e.calendarId) ?? ""}
-                    </div>
-                    <div className="text-[13.5px] font-extrabold text-ink">{(e.contactId && name.get(e.contactId)) || e.title}</div>
-                    {e.address && <div className="truncate text-[12px] font-semibold text-muted">{e.address}</div>}
-                  </li>
-                ))}
-            </ul>
-          )}
-        </Card>
+      <Card className="mb-3.5 min-w-0">
+        <div className="mb-2 text-[15px] font-extrabold">Schedule</div>
+        <ScheduleCalendar initial={schedule} variant="compact" />
+      </Card>
 
+      <div className="grid items-start gap-3.5 lg:grid-cols-2">
         <Card>
           <div className="mb-2 flex items-center justify-between">
             <div className="text-[15px] font-extrabold">Waiting on you</div>

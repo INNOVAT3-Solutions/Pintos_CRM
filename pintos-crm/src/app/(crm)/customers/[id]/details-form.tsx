@@ -52,6 +52,8 @@ export function DetailsForm({
 }) {
   const [state, setState] = useState<ActionResult>({});
   const [dirty, setDirty] = useState(false);
+  /** Phones start with the long form folded away; desktop always shows it. */
+  const [expanded, setExpanded] = useState(false);
   const [pending, start] = useTransition();
   const formRef = useRef<HTMLFormElement>(null);
   const baseline = useRef<Map<string, string>>(new Map());
@@ -104,7 +106,18 @@ export function DetailsForm({
           <div className="text-[15px] font-extrabold">Customer details</div>
           <div className="flex items-center gap-2">
             {dirty && !pending && <span className="text-[12px] font-bold text-warn">Unsaved changes</span>}
-            <Button type="submit" disabled={pending || !dirty}>
+            <button
+              type="button"
+              aria-expanded={expanded}
+              aria-controls={`${contactId}-details`}
+              onClick={() => setExpanded((v) => !v)}
+              className={`min-h-11 cursor-pointer rounded-[10px] border border-line-field bg-surface px-3.5 text-[14px] font-extrabold text-ink hover:bg-hover md:hidden ${
+                expanded ? "" : "border-blue/30 text-blue"
+              }`}
+            >
+              {expanded ? "Hide" : "Edit"}
+            </button>
+            <Button type="submit" disabled={pending || !dirty} className={expanded || dirty ? "" : "max-md:hidden"}>
               {pending ? "Saving to GHL…" : "Save"}
             </Button>
           </div>
@@ -120,6 +133,7 @@ export function DetailsForm({
           </div>
         )}
 
+        <div id={`${contactId}-details`} className={expanded ? "" : "max-md:hidden"}>
         <SectionLabel>Contact</SectionLabel>
         <div className="mt-2 mb-4 grid gap-3 sm:grid-cols-2">
           <Text label="First name" name="firstName" value={standard.firstName} />
@@ -147,6 +161,7 @@ export function DetailsForm({
             </div>
           </div>
         ))}
+        </div>
       </form>
     </Card>
   );

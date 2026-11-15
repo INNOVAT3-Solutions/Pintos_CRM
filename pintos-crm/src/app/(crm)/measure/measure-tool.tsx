@@ -72,7 +72,7 @@ const field =
   "w-full rounded-lg border border-[#2A4A6C] bg-white px-2.5 py-2 text-[13px] font-bold text-ink focus:outline-none focus:ring-2 focus:ring-sky";
 const darkLabel = "mb-1 block text-[11px] font-extrabold tracking-[0.6px] text-[#8FA9C2] uppercase";
 const toolBtn =
-  "cursor-pointer rounded-lg border border-[#C9D6E4] bg-white px-[13px] py-2 text-[12.5px] font-bold text-ink hover:bg-hover disabled:cursor-not-allowed disabled:opacity-50";
+  "min-h-11 cursor-pointer rounded-lg border border-[#C9D6E4] bg-white px-[13px] py-2 text-[12.5px] font-bold text-ink hover:bg-hover md:min-h-0 disabled:cursor-not-allowed disabled:opacity-50";
 
 export function MeasureTool({ mapsKey, initialCustomer }: { mapsKey: string; initialCustomer: Customer | null }) {
   const router = useRouter();
@@ -347,7 +347,7 @@ export function MeasureTool({ mapsKey, initialCustomer }: { mapsKey: string; ini
   );
 
   const hint = !surface && ready && mapsKey
-    ? "First pick what you're measuring →"
+    ? "First pick what you're measuring"
     : solarBusy
     ? "Google is measuring the roof…"
     : !mapsKey
@@ -357,7 +357,7 @@ export function MeasureTool({ mapsKey, initialCustomer }: { mapsKey: string; ini
         : closed
           ? "Drag corners to fine-tune · right-click a corner to delete it"
           : points.length
-            ? "Click each corner · click the first point to close"
+            ? "Tap each corner · tap the first point to close"
             : usingSolar
               ? "Blue box = building Google measured · click corners to outline it yourself instead"
               : center
@@ -439,20 +439,38 @@ export function MeasureTool({ mapsKey, initialCustomer }: { mapsKey: string; ini
             onChange={(e) => setQuery(e.target.value)}
             aria-label="Property address"
             placeholder="Property address — e.g. 7420 SW 62nd Ct, Pinecrest, FL"
-            className="min-w-0 flex-1 rounded-lg border border-[#C9D6E4] px-3 py-2 text-[13px] font-semibold"
+            className="min-h-11 min-w-0 flex-1 rounded-lg border border-[#C9D6E4] px-3 py-2 text-[13px] font-semibold md:min-h-0"
           />
           <button
             type="submit"
             disabled={!ready || busy}
-            className="cursor-pointer rounded-lg bg-blue px-4 py-2 text-[13px] font-extrabold whitespace-nowrap text-white hover:bg-sky disabled:opacity-60"
+            className="min-h-11 cursor-pointer rounded-lg bg-blue px-4 py-2 text-[13px] md:min-h-0 font-extrabold whitespace-nowrap text-white hover:bg-sky disabled:opacity-60"
           >
             {busy ? "Finding…" : "Find"}
           </button>
         </form>
 
-        <div className="relative h-[60vh] min-h-[360px] overflow-hidden rounded-[10px] bg-[#0F2740] md:h-[520px]">
+        {/* Phones: the surface picker sits above the map so it's chosen before drawing, without scrolling. */}
+        <div role="group" aria-label="What are you measuring?" className="mb-3 grid grid-cols-2 gap-1.5 min-[380px]:grid-cols-3 xl:hidden">
+          {(Object.keys(SURFACE_LABEL) as Surface[]).map((s) => (
+            <button
+              key={s}
+              type="button"
+              aria-pressed={surface === s}
+              onClick={() => setSurface(s)}
+              className={`flex min-h-10 min-w-0 cursor-pointer items-center gap-1.5 rounded-full border px-3 text-[13px] font-extrabold ${
+                surface === s ? "border-ink bg-ink text-white" : "border-line-field bg-surface text-ink-2"
+              }`}
+            >
+              <span className="size-2.5 shrink-0 rounded-full" style={{ background: SURFACE_COLOR[s] }} aria-hidden />
+              {SURFACE_LABEL[s]}
+            </button>
+          ))}
+        </div>
+
+        <div className="relative h-[55svh] min-h-[320px] overflow-hidden rounded-[10px] bg-[#0F2740] md:h-[520px]">
           <div ref={mapEl} className="absolute inset-0" data-testid="map" />
-          <div className="pointer-events-none absolute top-2.5 left-1/2 z-[1] max-w-[92%] -translate-x-1/2 truncate rounded-[7px] bg-navy/85 px-2.5 py-[5px] text-[11px] font-bold text-[#CDDDEE]">
+          <div className="pointer-events-none absolute top-[62px] left-1/2 z-[1] max-w-[92%] md:top-2.5 -translate-x-1/2 truncate rounded-[7px] bg-navy/85 px-2.5 py-[5px] text-[11px] font-bold text-[#CDDDEE]">
             {hint}
           </div>
           {mapErr && (
@@ -483,14 +501,22 @@ export function MeasureTool({ mapsKey, initialCustomer }: { mapsKey: string; ini
             type="button"
             disabled={points.length < 3 || closed}
             onClick={() => setClosed(true)}
-            className="cursor-pointer rounded-lg bg-ink px-[13px] py-2 text-[12.5px] font-bold text-white hover:bg-blue disabled:cursor-not-allowed disabled:opacity-40"
+            className="min-h-11 cursor-pointer rounded-lg bg-ink px-[13px] py-2 text-[12.5px] font-bold text-white md:min-h-0 hover:bg-blue disabled:cursor-not-allowed disabled:opacity-40"
           >
             Close shape
           </button>
           <span className="text-[12px] font-bold text-[#8AA0B8]">
             {points.length ? `${points.length} point${points.length > 1 ? "s" : ""}${closed ? " · closed" : ""}` : ""}
           </span>
-          <span className="ml-auto text-[11.5px] font-semibold text-[#8AA0B8]">Live satellite · geodesic area</span>
+          <span className="ml-auto text-[11.5px] font-semibold text-[#8AA0B8] max-sm:hidden">Live satellite · geodesic area</span>
+          {closed && (
+            <a
+              href="#measure-result"
+              className="flex min-h-11 w-full items-center justify-center rounded-lg bg-gradient-to-b from-brand-hi to-brand text-[14px] font-extrabold text-white shadow-[var(--shadow-brand)] xl:hidden"
+            >
+              {result.sqft > 0 ? `${result.sqft.toLocaleString("en-US")} sq ft · review & save ↓` : "Review & save ↓"}
+            </a>
+          )}
         </div>
       </div>
 
@@ -498,7 +524,7 @@ export function MeasureTool({ mapsKey, initialCustomer }: { mapsKey: string; ini
       <div className="flex flex-col gap-3.5">
         <CustomerPicker customer={customer} onChange={setCustomer} />
 
-        <div className="rounded-2xl bg-gradient-to-br from-navy to-[#16406B] p-[18px] shadow-[0_10px_28px_rgba(10,27,46,0.22)]">
+        <div id="measure-result" className="scroll-mt-3 rounded-2xl bg-gradient-to-br from-navy to-[#16406B] p-[18px] shadow-[0_10px_28px_rgba(10,27,46,0.22)]">
           <div className="text-[11px] font-extrabold tracking-[1px] text-[#8FA9C2]">MEASURED AREA</div>
           <div className="my-1 font-display text-[32px] font-extrabold text-[#F9A03F]" data-testid="measured-area">
             {result.sqft > 0 ? `${result.sqft.toLocaleString("en-US")} sq ft` : "—"}
@@ -516,7 +542,7 @@ export function MeasureTool({ mapsKey, initialCustomer }: { mapsKey: string; ini
                   type="button"
                   aria-pressed={surface === s}
                   onClick={() => setSurface(s)}
-                  className={`flex cursor-pointer items-center gap-1.5 rounded-lg border px-2 py-1.5 text-left text-[12px] font-extrabold ${
+                  className={`flex min-h-10 cursor-pointer items-center gap-1.5 rounded-lg border px-2 py-1.5 text-left text-[12px] md:min-h-0 font-extrabold ${
                     surface === s ? "border-[#F9A03F] bg-white text-ink" : "border-[#2A4A6C] text-[#CDDDEE] hover:bg-white/5"
                   }`}
                 >
