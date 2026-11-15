@@ -16,10 +16,10 @@ export function PageHeader({ title, subtitle, actions }: { title: string; subtit
   return (
     <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
       <div>
-        <h1 className="font-display text-[27px] font-extrabold tracking-[-0.3px] text-ink">{title}</h1>
+        <h1 className="font-display text-[25px] leading-tight font-extrabold tracking-[-0.3px] text-balance text-ink md:text-[27px]">{title}</h1>
         {subtitle && <div className="mt-0.5 text-[13.5px] font-semibold text-muted">{subtitle}</div>}
       </div>
-      {actions && <div className="flex gap-2">{actions}</div>}
+      {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
     </div>
   );
 }
@@ -35,7 +35,7 @@ export function Button({ variant = "primary", className, ...rest }: ButtonProps)
     <button
       {...rest}
       className={cx(
-        "inline-flex cursor-pointer items-center justify-center gap-2 rounded-[10px] px-4 py-[9px] text-[13px] font-extrabold transition disabled:cursor-not-allowed disabled:opacity-60",
+        "inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-[10px] px-4 py-[9px] text-[14px] font-extrabold transition md:min-h-0 md:text-[13px] disabled:cursor-not-allowed disabled:opacity-60",
         variant === "primary" &&
           "bg-gradient-to-b from-brand-hi to-brand text-white shadow-[var(--shadow-brand)] hover:brightness-105",
         variant === "secondary" && "border border-line-field bg-surface text-ink hover:bg-hover",

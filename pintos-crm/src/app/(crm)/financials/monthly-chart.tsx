@@ -121,7 +121,7 @@ export function MonthlyChart({ rows }: { rows: MonthRow[] }) {
 
       {/* Table view: every value, no hover needed. */}
       <div className="mt-3 overflow-x-auto">
-        <table className="w-full min-w-[480px] text-right text-[12.5px]">
+        <table className="stack-table w-full min-w-[480px] text-right text-[12.5px]">
           <caption className="sr-only">Monthly totals</caption>
           <thead>
             <tr className="border-b border-line-soft text-[10.5px] font-extrabold tracking-[0.8px] text-muted uppercase">
@@ -135,11 +135,11 @@ export function MonthlyChart({ rows }: { rows: MonthRow[] }) {
           <tbody>
             {rows.map((r) => (
               <tr key={r.key} className="border-b border-line-soft font-semibold text-ink-2 last:border-0">
-                <td className="py-1.5 text-left font-extrabold text-ink">{r.label}</td>
-                <td className="py-1.5">{money(r.work)}</td>
-                <td className="py-1.5">{money(r.collected)}</td>
-                <td className="py-1.5">{money(r.expenses)}</td>
-                <td className="py-1.5 font-extrabold text-ink">{money(r.work - r.expenses)}</td>
+                <td data-label="" className="py-1.5 text-left font-extrabold text-ink">{r.label}</td>
+                <td data-label="Work completed" className="py-1.5">{money(r.work)}</td>
+                <td data-label="Collected (GHL)" className="py-1.5">{money(r.collected)}</td>
+                <td data-label="Expenses" className="py-1.5">{money(r.expenses)}</td>
+                <td data-label="Work − expenses" className="py-1.5 font-extrabold text-ink">{money(r.work - r.expenses)}</td>
               </tr>
             ))}
           </tbody>

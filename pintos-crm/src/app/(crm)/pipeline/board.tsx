@@ -37,6 +37,11 @@ export function Board({ stages, initialCards }: { stages: PipelineStage[]; initi
     return m;
   }, [cards, stages]);
 
+  // Phones show one stage at a time (no sideways scrolling); start on the first stage with deals.
+  const [mobileStage, setMobileStage] = useState(
+    () => stages.find((s) => initialCards.some((c) => c.stageId === s.id))?.id ?? stages[0]?.id ?? "",
+  );
+
   const stageName = (id: string) => stages.find((s) => s.id === id)?.name ?? "stage";
 
   const move = (cardId: string, toStage: string) => {
@@ -68,7 +73,26 @@ export function Board({ stages, initialCards }: { stages: PipelineStage[]; initi
 
   return (
     <>
-      <div className="-mx-4 flex items-start gap-3 overflow-x-auto px-4 pb-3 md:-mx-7 md:px-7">
+      <label className="mb-3 block md:hidden">
+        <span className="mb-1.5 block text-[12px] font-extrabold text-ink-2">Stage</span>
+        <select
+          value={mobileStage}
+          onChange={(e) => setMobileStage(e.target.value)}
+          className="h-12 w-full rounded-[10px] border border-line-field bg-surface px-3 font-extrabold text-ink"
+        >
+          {stages.map((s) => {
+            const list = byStage.get(s.id) ?? [];
+            const total = list.reduce((t, c) => t + c.value, 0);
+            return (
+              <option key={s.id} value={s.id}>
+                {s.name} · {list.length}
+                {total ? ` · ${money(total)}` : ""}
+              </option>
+            );
+          })}
+        </select>
+      </label>
+      <div className="pb-3 md:-mx-7 md:flex md:items-start md:gap-3 md:overflow-x-auto md:px-7">
         {stages.map((stage, i) => {
           const list = byStage.get(stage.id) ?? [];
           const total = list.reduce((s, c) => s + c.value, 0);
@@ -93,11 +117,11 @@ export function Board({ stages, initialCards }: { stages: PipelineStage[]; initi
                 setDragId(null);
                 if (id) move(id, stage.id);
               }}
-              className={`w-[232px] shrink-0 rounded-[14px] p-2.5 transition-colors ${
+              className={`w-full rounded-[14px] p-2.5 transition-colors md:w-[232px] md:shrink-0 ${stage.id === mobileStage ? "" : "max-md:hidden"} ${
                 isOver ? "bg-[#DCE8F5] ring-2 ring-sky" : "bg-[#E7EDF4]"
               }`}
             >
-              <header className="flex items-baseline justify-between px-1.5 pt-0.5 pb-2.5">
+              <header className="flex items-baseline justify-between px-1.5 pt-0.5 pb-2.5 max-md:hidden">
                 <h2 className="text-[11.5px] font-extrabold tracking-[0.8px] text-[#3D5570] uppercase">
                   {stage.name} <span className="text-muted">{list.length}</span>
                 </h2>
@@ -105,6 +129,9 @@ export function Board({ stages, initialCards }: { stages: PipelineStage[]; initi
               </header>
 
               <ul className="flex min-h-[60px] flex-col gap-2">
+                {list.length === 0 && (
+                  <li className="px-1.5 py-5 text-center text-[13px] font-semibold text-muted md:hidden">No deals in this stage.</li>
+                )}
                 {list.map((card) => (
                   <li
                     key={card.id}
@@ -141,9 +168,9 @@ export function Board({ stages, initialCards }: { stages: PipelineStage[]; initi
                           aria-label={`Move ${card.contactName ?? card.name} to ${next.name}`}
                           disabled={busy.has(card.id)}
                           onClick={() => move(card.id, next.id)}
-                          className="flex shrink-0 cursor-pointer items-center rounded-[7px] border border-line-field bg-surface px-1.5 py-0.5 text-blue hover:bg-[#EAF4FB] disabled:opacity-40"
+                          className="flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-[9px] border border-line-field bg-surface text-blue md:size-auto md:rounded-[7px] md:px-1.5 md:py-0.5 hover:bg-[#EAF4FB] disabled:opacity-40"
                         >
-                          <ArrowRight size={13} aria-hidden />
+                          <ArrowRight size={15} aria-hidden />
                         </button>
                       )}
                     </div>
@@ -171,7 +198,7 @@ export function Board({ stages, initialCards }: { stages: PipelineStage[]; initi
                       value={card.stageId}
                       disabled={busy.has(card.id)}
                       onChange={(e) => move(card.id, e.target.value)}
-                      className="mt-2 w-full rounded-[7px] border border-line-field bg-field px-2 py-1 text-[11.5px] font-bold text-ink-2 md:hidden"
+                      className="mt-2.5 h-11 w-full rounded-[9px] border border-line-field bg-field px-2.5 text-[11.5px] font-bold text-ink-2 md:hidden"
                     >
                       {stages.map((s) => (
                         <option key={s.id} value={s.id}>
@@ -190,7 +217,7 @@ export function Board({ stages, initialCards }: { stages: PipelineStage[]; initi
       {toast && (
         <div
           role={toast.tone === "error" ? "alert" : "status"}
-          className={`fixed bottom-5 left-1/2 z-50 max-w-[90vw] -translate-x-1/2 rounded-xl px-4 py-2.5 text-[13px] font-bold shadow-lg ${
+          className={`fixed bottom-[calc(72px+env(safe-area-inset-bottom))] left-1/2 md:bottom-5 z-50 max-w-[90vw] -translate-x-1/2 rounded-xl px-4 py-2.5 text-[13px] font-bold shadow-lg ${
             toast.tone === "error" ? "bg-bad text-white" : "bg-ink text-white"
           }`}
         >

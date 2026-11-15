@@ -38,6 +38,19 @@
   --color-bad: #c53030;
   --color-bad-tint: #fdeaea;
 
+  /* Public brand, from pintospressurewashing.com (styles.css): used on the sign-in screens. */
+  --font-kanit: var(--font-kanit-face), var(--font-barlow), sans-serif;
+  --color-site-bg: #0b0b0d;
+  --color-site-bg-2: #111114;
+  --color-site-surface: #17181c;
+  --color-site-line: #2a2c33;
+  --color-site-text: #c8cbd3;
+  --color-site-muted: #8e929e;
+  --color-site-white: #f6f7fa;
+  --color-site-orange: #ff6a13;
+  --color-site-orange-2: #ff8a1f;
+  --color-site-gold: #ffb01f;
+
   --shadow-card: 0 1px 2px rgba(16, 42, 67, 0.04), 0 10px 28px rgba(16, 42, 67, 0.05);
   --shadow-brand: 0 5px 14px rgba(242, 111, 31, 0.28);
 }
@@ -53,6 +66,87 @@ body {
 /* The CRM is light-only, matching the prototype; keep native controls light too. */
 :root {
   color-scheme: light;
+}
+
+/* Phones and tablets: no 300ms tap delay, no grey tap flash, and 16px form text so iOS
+   doesn't zoom the page every time a field is tapped. Unlayered, so it wins over the
+   small desktop text sizes set with utilities. */
+html {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+}
+a,
+button,
+select,
+label,
+summary,
+[role="button"] {
+  touch-action: manipulation;
+}
+@media (pointer: coarse) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+  select,
+  textarea {
+    font-size: 16px;
+  }
+  input[type="checkbox"],
+  input[type="radio"] {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+/* Phones: data tables become one card per row (label left, value right) instead of
+   scrolling sideways. Mark cells with data-label; an empty label is the row's title or action. */
+@media (max-width: 767.98px) {
+  .stack-table,
+  .stack-table tbody {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    text-align: left;
+  }
+  .stack-table thead {
+    display: none;
+  }
+  .stack-table tr {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px 0;
+  }
+  .stack-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    padding: 0;
+    text-align: right;
+  }
+  .stack-table td::before {
+    content: attr(data-label);
+    flex-shrink: 0;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    text-align: left;
+  }
+  .stack-table td[data-label=""] {
+    display: block;
+    text-align: left;
+  }
+  .stack-table td[data-label=""]::before {
+    content: none;
+  }
+  .stack-table td[data-title] {
+    order: -1;
+    font-size: 14.5px;
+  }
+  .stack-table td:empty {
+    display: none;
+  }
 }
 
 input::placeholder,

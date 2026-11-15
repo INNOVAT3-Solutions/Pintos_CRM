@@ -24,5 +24,6 @@ export async function middleware(req: NextRequest) {
 
 export const config = {
   // Skip Next internals and static files.
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|logo.png|.*\\.(?:png|jpg|jpeg|svg|webp|ico)$).*)"],
+  // manifest.webmanifest must be public so phones can read the home-screen icon before sign-in.
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|logo.png|manifest.webmanifest|.*\\.(?:png|jpg|jpeg|svg|webp|ico)$).*)"],
 };

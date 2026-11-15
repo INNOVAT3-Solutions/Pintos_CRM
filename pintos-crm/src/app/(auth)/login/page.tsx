@@ -9,9 +9,12 @@ export default async function LoginPage() {
   if (await getCurrentUser()) redirect("/dashboard");
   return (
     <>
-      <h1 className="font-display text-[24px] font-extrabold text-ink">Sign in</h1>
-      <p className="mt-1 mb-5 text-[13.5px] font-semibold text-muted">Pinto&apos;s team CRM</p>
-      <LoginForm />
+      <p className="font-kanit text-[13px] font-extrabold tracking-[1.6px] text-site-orange uppercase italic">Team sign in</p>
+      <h1 className="mt-1 font-kanit text-[34px] leading-none font-black text-site-white uppercase italic">Welcome back</h1>
+      <p className="mt-2 mb-5 text-[14px] font-medium text-site-muted">Sign in to Pinto&apos;s CRM: customers, estimates, jobs and the schedule.</p>
+      <div className="rounded-xl bg-surface p-5">
+        <LoginForm />
+      </div>
     </>
   );
 }

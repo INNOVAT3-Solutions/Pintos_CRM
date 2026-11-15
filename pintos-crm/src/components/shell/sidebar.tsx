@@ -24,15 +24,15 @@ export function Sidebar({
 
   return (
     <aside
-      className={`fixed inset-y-0 left-0 z-40 flex w-[224px] shrink-0 flex-col border-r border-line bg-surface px-3 pt-4 pb-3.5 transition-transform md:static md:translate-x-0 ${
+      className={`no-print fixed inset-y-0 left-0 z-40 flex w-[248px] shrink-0 flex-col border-r border-line bg-surface px-3 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(0.875rem,env(safe-area-inset-bottom))] transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none md:static md:w-[224px] md:translate-x-0 ${
         open ? "translate-x-0 shadow-2xl" : "-translate-x-full"
       }`}
     >
       <div className="flex justify-center border-b border-line-soft px-1.5 pb-3">
-        <Image src="/logo.png" alt="Pinto's Pressure Washing" width={124} height={83} priority style={{ width: "auto", height: "auto" }} />
+        <Image src="/logo.png" alt="Pinto's Pressure Washing" width={124} height={83} priority className="h-[58px] w-auto md:h-[83px]" />
       </div>
 
-      <nav className="flex-1 overflow-y-auto pt-3" aria-label="Main">
+      <nav className="flex-1 overflow-y-auto overscroll-contain pt-3" aria-label="Main">
         {NAV_GROUPS.map((group) => (
           <div key={group.label} className="mb-4">
             <div className="px-3 pb-[7px] text-[10px] font-extrabold tracking-[1.8px] text-faint uppercase">
@@ -47,7 +47,7 @@ export function Sidebar({
                     href={href}
                     onClick={onNavigate}
                     aria-current={active ? "page" : undefined}
-                    className={`flex items-center gap-2.5 rounded-[10px] px-[11px] py-2 text-[13.5px] font-bold ${
+                    className={`flex items-center gap-2.5 rounded-[10px] px-[11px] py-2.5 text-[14.5px] font-bold md:py-2 md:text-[13.5px] ${
                       active ? "bg-brand-tint text-brand-deep" : "text-ink-2 hover:bg-hover"
                     }`}
                   >
@@ -79,7 +79,7 @@ export function Sidebar({
             type="submit"
             title="Sign out"
             aria-label="Sign out"
-            className="flex size-8 cursor-pointer items-center justify-center rounded-lg text-subtle hover:bg-hover hover:text-ink"
+            className="flex size-10 cursor-pointer md:size-8 items-center justify-center rounded-lg text-subtle hover:bg-hover hover:text-ink"
           >
             <LogOut size={16} aria-hidden />
           </button>

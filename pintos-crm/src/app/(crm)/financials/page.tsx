@@ -90,7 +90,7 @@ export default async function FinancialsPage() {
           <p className="mt-2 text-[12.5px] font-semibold text-faint">No expenses recorded yet.</p>
         ) : (
           <div className="mt-2 overflow-x-auto">
-            <table className="w-full min-w-[560px] text-left text-[13px]">
+            <table className="stack-table w-full min-w-[560px] text-left text-[13px]">
               <thead>
                 <tr className="border-b border-line-soft text-[10.5px] font-extrabold tracking-[0.8px] text-muted uppercase">
                   <th className="py-2 pr-3">Date</th>
@@ -104,15 +104,15 @@ export default async function FinancialsPage() {
               <tbody>
                 {recent.map((e) => (
                   <tr key={e.id} className="border-b border-line-soft last:border-0">
-                    <td className="py-2 pr-3 font-semibold text-ink-2">{fmtDate(`${e.date}T12:00:00`)}</td>
-                    <td className="py-2 pr-3 font-extrabold text-ink">
+                    <td data-label="Date" className="py-2 pr-3 font-semibold text-ink-2">{fmtDate(`${e.date}T12:00:00`)}</td>
+                    <td data-label="" data-title className="py-2 pr-3 font-extrabold text-ink">
                       {e.vendor}
                       {e.notes && <span className="block text-[11.5px] font-semibold text-muted">{e.notes}</span>}
                     </td>
-                    <td className="py-2 pr-3 font-semibold text-ink-2">{e.category}</td>
-                    <td className="py-2 pr-3 text-right font-extrabold text-ink">{money(e.amount)}</td>
-                    <td className="py-2 pr-3 font-semibold text-muted">{e.staffName}</td>
-                    <td className="py-2 text-right">
+                    <td data-label="Category" className="py-2 pr-3 font-semibold text-ink-2">{e.category}</td>
+                    <td data-label="Amount" className="py-2 pr-3 text-right font-extrabold text-ink">{money(e.amount)}</td>
+                    <td data-label="Added by" className="py-2 pr-3 font-semibold text-muted">{e.staffName}</td>
+                    <td data-label="" className="py-2 text-right">
                       <DeleteExpense id={e.id} label={`${e.vendor} ${money(e.amount)}`} />
                     </td>
                   </tr>
